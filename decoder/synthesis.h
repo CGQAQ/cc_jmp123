@@ -47,6 +47,7 @@ class Synthesis {
 
   int max_pcm_;
 
+ public:
   /**
    * 获取PCM最大峰值。
    * @return PCM样本的最大峰值。该最大值可用于音量规格化。
@@ -61,7 +62,7 @@ class Synthesis {
    * @param ch
    *            当前的声道。左声道0，右声道1。
    */
-  void SynthesisSubBand(float samples[], int ch);
+  void SynthesisSubBand(std::array<float, 32> samples, int ch);
 
   /**
    * 一个子带的矩阵运算。
@@ -70,9 +71,9 @@ class Synthesis {
    * @param off
    * FIFO队列的偏移量。一个子带一次矩阵运算输出64个值连续存储到FIFO队列，存储的起始位置由off指定。
    */
-  void Synthesis::Dct32To64(float *src, std::array<float, 1024> dest, int off);
+  void Synthesis::Dct32To64(std::array<float, 32>   src, std::array<float, 1024> dest, int off);
 
- public:
+
   /**
    * 子带多相合成滤波构造器。
    *

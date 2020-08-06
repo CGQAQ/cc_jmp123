@@ -24,7 +24,7 @@ Synthesis::Synthesis(std::unique_ptr<AudioBuffer> ab, int channels)
   fifo_index_ = std::make_unique<int[]>(channels);
 }
 int  Synthesis::GetMaxPCM() const { return max_pcm_; }
-void Synthesis::SynthesisSubBand(float *samples, int ch) {
+void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
   auto         fifo    = fifo_buf_[ch];
   auto &       pcm_buf = audio_buffer_->pcm_buf_;
   float        sum     = 0;
@@ -455,7 +455,7 @@ void Synthesis::SynthesisSubBand(float *samples, int ch) {
   }
   audio_buffer_->off_[ch] = off;
 }
-void Synthesis::Dct32To64(float *src, std::array<float, 1024> dest, int off) {
+void Synthesis::Dct32To64(std::array<float, 32>   src, std::array<float, 1024> dest, int off) {
   auto  in  = src;
   auto  out = dest;
   int   i   = off;

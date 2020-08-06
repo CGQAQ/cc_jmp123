@@ -34,7 +34,7 @@ class LayerI_II_III {
   std::unique_ptr<AudioBuffer> audio_buffer_;
 
  public:
-  LayerI_II_III(Header h, std::unique_ptr<IAudio> audio);
+  LayerI_II_III(const Header &h, std::unique_ptr<IAudio> audio);
   ~LayerI_II_III() = default;
 
   /**
@@ -47,20 +47,20 @@ class LayerI_II_III {
    * @return
    * 源数据缓冲区新的偏移量，用于计算解码下一帧数据的开始位置在源数据缓冲区的偏移量。
    */
-  virtual int decodeFrame(uint8_t b[], int off) = 0;
+  virtual int DecodeFrame(uint8_t b[], int off) = 0;
 
   /**
    * 音频输出。完成一帧多相合成滤波后调用此方法将多相合成滤波输出的PCM数据写入音频输出对象。
    * @see AudioBuffer#output()
    */
-  void outputAudio();
+  void OutputAudio();
 
   /**
    * 音频输出缓冲区的全部内容刷向音频输出对象并将缓冲区偏移量复位。
    *
    * @see AudioBuffer#flush()
    */
-  void close();
+  void Close();
 };
 }  // namespace jmp123::decoder
 

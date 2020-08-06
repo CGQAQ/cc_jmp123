@@ -21,6 +21,8 @@
 #define JMP123_LAYER_1_H
 
 #include <array>
+#include <cmath>
+#include <memory>
 
 #include "bit_stream.h"
 #include "header.h"
@@ -29,7 +31,7 @@
 namespace jmp123::decoder {
 class LayerI : LayerI_II_III {
   Header                                 header_;
-  BitStream                              bs_;
+  std::unique_ptr<BitStream>             bs_;
   std::array<std::array<uint8_t, 32>, 2> allocation_;
   std::array<std::array<uint8_t, 32>, 2> scale_factor_;
   std::array<std::array<float, 32>, 2>   syin_;
@@ -37,6 +39,20 @@ class LayerI : LayerI_II_III {
  public:
   // TODO: Implement it, but it depends on AudioBuffer and Layer123, so I will
   // implement those tow first
+  LayerI(Header h, std::unique_ptr<IAudio> audio)
+      : LayerI_II_III(h, std::move(audio)),
+        bs_(std::make_unique<BitStream>(4096, 512)) {}
+
+ private:
+  /*
+   * 逆量化公式:
+   * s'' = (2^nb / (2^nb - 1)) * (s''' + 2^(-nb + 1))
+   * s' = factor * s''
+   */
+  float Requantization(int ch, int sb, int nb);
+
+ public:
+  int DecodeFrame(uint8_t b[], int off) override;
 };
 }  // namespace jmp123::decoder
 
