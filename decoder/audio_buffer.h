@@ -24,8 +24,7 @@
 #include "audio_interface.h"
 namespace jmp123::decoder {
 class AudioBuffer{
-
- protected:
+ public:
   std::unique_ptr<uint8_t[]> pcm_buf_;
   std::unique_ptr<int[]>     off_;
 
