@@ -3,7 +3,7 @@ project(jmp123)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(jmp123 main.cpp)
+add_executable(jmp123 main.cpp decoder/layer_2.cc decoder/layer_2.h)
 
 target_sources(
         jmp123 PUBLIC

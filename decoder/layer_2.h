@@ -17,11 +17,10 @@
 //    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#ifndef JMP123_LAYER_1_H
-#define JMP123_LAYER_1_H
+#ifndef JMP123_LAYER_2_H
+#define JMP123_LAYER_2_H
 
 #include <array>
-#include <cmath>
 #include <memory>
 
 #include "bit_stream.h"
@@ -29,30 +28,28 @@
 #include "layer123.h"
 
 namespace jmp123::decoder {
-class LayerI : LayerI_II_III {
+class LayerII : LayerI_II_III {
+ private:
   Header                                 header_;
   std::unique_ptr<BitStream>             bs_;
+  int                                    channels_, aidx_, sb_limit_;
   std::array<std::array<uint8_t, 32>, 2> allocation_;
-  std::array<std::array<uint8_t, 32>, 2> scale_factor_;
-  std::array<std::array<float, 32>, 2>   syin_;
+  std::array<std::array<uint8_t, 32>, 2> scfsi_;
+  std::array<std::array<std::array<uint8_t, 3>, 32>, 2> scale_factor_;
+  std::array<int, 3>                                    sample_code_;
+  std::array<std::array<std::array<float, 32>, 3>, 2>   syin_;
 
  public:
-  LayerI(Header h, std::unique_ptr<IAudio> audio)
-      : LayerI_II_III(h, std::move(audio)),
-        header_(std::move(h)),
-        bs_(std::make_unique<BitStream>(4096, 512)) {}
+  LayerII(Header h, std::unique_ptr<IAudio> audio);
 
  private:
-  /*
-   * 逆量化公式:
-   * s'' = (2^nb / (2^nb - 1)) * (s''' + 2^(-nb + 1))
-   * s' = factor * s''
-   */
-  float Requantization(int ch, int sb, int nb);
+  void Requantization(int index, int gr, int ch, int sb);
+
+  void Stereo(int index, int gr, int sb);
 
  public:
   int DecodeFrame(uint8_t b[], int off) override;
 };
 }  // namespace jmp123::decoder
 
-#endif  // JMP123_LAYER_1_H
+#endif  // JMP123_LAYER_2_H
