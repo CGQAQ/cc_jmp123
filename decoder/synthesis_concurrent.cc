@@ -18,4 +18,60 @@
 //
 
 #include "synthesis_concurrent.h"
-namespace jmp123::decoder {}
+namespace jmp123::decoder {
+SynthesisConcurrent::SynthesisConcurrent(const LayerIII& owner, int ch)
+    : owner_(owner), ch_(ch), pause_(true), alive_(true) {
+  samples_.fill(0);
+  pre_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules);
+  cur_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules);
+}
+auto SynthesisConcurrent::StartSynthesis() {
+  // 1. 交换缓冲区
+  auto p  = pre_xr_;
+  pre_xr_ = cur_xr_;
+  cur_xr_ = p;
+
+  // 2. 通知run()干活
+  pause_ = false;
+  notifier_.notify_one();
+
+  // 3. 返回"空闲的"缓冲区，该缓冲区内的数据已被run()方法使用完毕
+  return pre_xr_;
+}
+auto SynthesisConcurrent::GetBuffer() { return pre_xr_; }
+void SynthesisConcurrent::Shutdown() {
+  alive_ = false;
+  pause_ = false;
+  notifier_.notify_one();
+}
+void SynthesisConcurrent::operator()() {
+  int   gr = 0, sub = 0, ss = 0, i = 0;
+  int   granules = owner_.granules;
+  auto& filter   = owner_.filter_;
+
+  while (alive_) {
+    auto lock = std::unique_lock<std::mutex>(pause_mutex_);
+    while (pause_) notifier_.wait(lock);
+    pause_ = true;
+
+    for (gr = 0; gr < granules; ++gr) {
+      auto xr = cur_xr_[gr];
+      for (ss = 0, sub = 0; sub < 32; ++sub, i += 18) {
+        samples_[sub] = xr[i];
+      }
+      filter->SynthesisSubBand(samples_, ch_);
+
+      for (i = ss + 1, sub = 0; sub < 32; sub += 2, i += 36) {
+        samples_[sub] = xr[i];
+
+        // 多相频率倒置(INVERSE QUANTIZE SAMPLES)
+        samples_[sub + 1] = -xr[i + 18];
+      }
+      filter->SynthesisSubBand(samples_, ch_);
+    }
+  }
+
+  // 3. 提交结果
+  owner_->SubmitSynthesis();
+}
+}  // namespace jmp123::decoder

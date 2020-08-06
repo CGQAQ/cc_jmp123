@@ -47,12 +47,7 @@ class SynthesisConcurrent {
   //  std::jthread
 
  public:
-  SynthesisConcurrent(LayerIII const& owner, int ch)
-      : owner_(owner), ch_(ch), pause_(true), alive_(true) {
-    samples_.fill(0);
-    pre_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules);
-    cur_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules);
-  }
+  SynthesisConcurrent(LayerIII const& owner, int ch);
 
   /**
    * 交换缓冲区并唤醒SynthesisConcurrent线程。
@@ -60,19 +55,7 @@ class SynthesisConcurrent {
    * @return
    * 一个空闲的缓冲区，该缓冲区用于使用SynthesisConcurrent线程的对象在逆量化、抗锯齿和IMDCT时暂存数据。
    */
-  auto StartSynthesis() {
-    // 1. 交换缓冲区
-    auto p  = pre_xr_;
-    pre_xr_ = cur_xr_;
-    cur_xr_ = p;
-
-    // 2. 通知run()干活
-    pause_ = false;
-    notifier_.notify_one();
-
-    // 3. 返回"空闲的"缓冲区，该缓冲区内的数据已被run()方法使用完毕
-    return pre_xr_;
-  }
+  auto StartSynthesis();
 
   /**
    * 获取一个空闲的缓冲区。
@@ -80,53 +63,19 @@ class SynthesisConcurrent {
    * @return
    * 一个空闲的缓冲区，该缓冲区用于使用SynthesisConcurrent的对象在逆量化、抗锯齿和IMDCT时暂存数据。
    */
-  auto GetBuffer() { return pre_xr_; }
+  auto GetBuffer();
 
   /**
    * 关闭SynthesisConcurrent线程。
    */
-  void Shutdown() {
-    alive_ = false;
-    pause_ = false;
-    notifier_.notify_one();
-  }
+  void Shutdown();
 
   /**
    * 使用SynthesisConcurrent的对象创建一个线程时，启动该线程将导致在独立执行的线程中调用SynthesisConcurrent的
    * run 方法进行异步多相合成滤波。
    */
 
-  void operator()() {
-    int gr=0, sub=0, ss=0, i=0;
-    int granules = owner_.granules;
-    auto& filter = owner_.filter_;
-
-    while (alive_) {
-      auto lock = std::unique_lock<std::mutex>(pause_mutex_);
-      while (pause_)
-        notifier_.wait(lock);
-      pause_ = true;
-
-      for (gr = 0; gr < granules; ++gr) {
-        auto xr = cur_xr_[gr];
-        for (ss = 0, sub =0; sub < 32; ++sub, i+= 18) {
-          samples_[sub] = xr[i];
-        }
-        filter->SynthesisSubBand(samples_, ch_);
-
-        for (i = ss + 1, sub = 0; sub < 32; sub+=2, i+= 36) {
-          samples_[sub] = xr[i];
-
-          // 多相频率倒置(INVERSE QUANTIZE SAMPLES)
-          samples_[sub + 1] = -xr[i + 18];
-        }
-        filter->SynthesisSubBand(samples_, ch_);
-      }
-    }
-
-    // 3. 提交结果
-    owner_->SubmitSynthesis();
-  }
+  void operator()();
 };
 
 }  // namespace jmp123::decoder
