@@ -27,7 +27,7 @@
 
 namespace jmp123::decoder {
 class LayerI_II_III {
- protected:
+ public:
   std::unique_ptr<Synthesis> filter_;
 
  private:

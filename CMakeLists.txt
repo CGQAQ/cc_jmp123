@@ -3,7 +3,7 @@ project(jmp123)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(jmp123 main.cpp decoder/layer_2.cc decoder/layer_2.h)
+add_executable(jmp123 main.cpp )
 
 target_sources(
         jmp123 PUBLIC
@@ -20,7 +20,11 @@ target_sources(
         decoder/layer123.cc
         decoder/layer123.h
         decoder/synthesis.cc
-        decoder/synthesis.h)
+        decoder/synthesis.h
+        decoder/layer_2.cc decoder/layer_2.h
+        decoder/layer_3.cc decoder/layer_3.h
+        decoder/synthesis_concurrent.cc decoder/synthesis_concurrent.h
+)
 
 add_subdirectory(third_party/fmt)
 
