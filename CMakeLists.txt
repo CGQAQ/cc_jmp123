@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(jmp123 main.cpp)
 
-target_sources(jmp123 PUBLIC decoder/bit_stream.cpp decoder/header.cpp)
+target_sources(jmp123 PUBLIC decoder/audio_buffer.cc decoder/bit_stream.cc decoder/header.cc decoder/tables.cc decoder/layer_1.cc)
 
 add_subdirectory(third_party/fmt)
 

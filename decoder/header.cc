@@ -524,5 +524,5 @@ void jmp123::decoder::Header::PrintProgress() {
   }
 
   std::cout << fmt::format("\r#{:-5d} [{:-41s}] {:02d}:{:05.2f} ",
-                           frame_counter_, progress_, m, s);
+                           frame_counter_, progress_.str(), m, s);
 }
