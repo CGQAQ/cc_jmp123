@@ -24,10 +24,37 @@
 #include <vector>
 namespace jmp123::decoder {
 
+namespace {
+
+constexpr std::array<std::array<std::array<int, 15>, 3>, 2> kBitrateTable{
+    std::to_array<std::array<int, 15>, 3>(
+        {// MPEG-1
+         // Layer I
+         {0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448},
+         // Layer II
+         {0, 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384},
+         // Layer III
+         {0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320}}),
+    std::to_array<std::array<int, 15>, 3>(
+        {// MPEG-2/2.5
+         // Layer I
+         {0, 32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256},
+         // Layer II
+         {0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160},
+         // Layer III
+         {0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160}})};
+
+constexpr std::array<std::array<int, 4>, 4> kSamplingRateTable{
+    std::to_array({11025, 12000, 8000, 0}),
+    std::to_array({0, 0, 0, 0}),
+    std::to_array({22050, 24000, 16000, 0}),
+    std::to_array({44100, 48000, 32000, 0}),
+};
+
 // Layer1也用到factor[]
 // ISO/IEC 11172-3 Table 3-B.1
 // scalefactor值为'0000 00'..'1111 11'(0..63),应该有64个值.在末尾补一个数0.0f
-inline constexpr std::array kFactor{
+constexpr std::array kFactor{
     2.00000000000000f, 1.58740105196820f, 1.25992104989487f, 1.00000000000000f,
     0.79370052598410f, 0.62996052494744f, 0.50000000000000f, 0.39685026299205f,
     0.31498026247372f, 0.25000000000000f, 0.19842513149602f, 0.15749013123686f,
@@ -46,48 +73,47 @@ inline constexpr std::array kFactor{
     0.00000190734863f, 0.00000151386361f, 0.00000120155435f, 0.0f,
 };
 
-inline constexpr std::array<std::array<std::array<uint8_t, 16>, 2>, 3>
-    kAIDXTable{std::to_array<std::array<uint8_t, 16>, 2>(
-                   {{0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 1, 1, 1, 1, 1, 0},
-                    {0, 2, 2, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}}),
-               std::to_array<std::array<uint8_t, 16>, 2>(
-                   {{0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}),
-               std::to_array<std::array<uint8_t, 16>, 2>(
-                   {{0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 1, 1, 1, 1, 1, 0},
-                    {0, 3, 3, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}})};
+constexpr std::array<std::array<std::array<uint8_t, 16>, 2>, 3> kAIDXTable{
+    std::to_array<std::array<uint8_t, 16>, 2>(
+        {{0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 1, 1, 1, 1, 1, 0},
+         {0, 2, 2, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}}),
+    std::to_array<std::array<uint8_t, 16>, 2>(
+        {{0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+         {0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}),
+    std::to_array<std::array<uint8_t, 16>, 2>(
+        {{0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 1, 1, 1, 1, 1, 0},
+         {0, 3, 3, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}})};
 
 // cq_xxx: Layer II classes of quantization, ISO/IEC 11172-3 Table 3-B.4
-inline constexpr std::array kCQ_Steps{3,    5,    7,     9,     15,   31,
-                                      63,   127,  255,   511,   1023, 2047,
-                                      4095, 8191, 16383, 32767, 65535};
+constexpr std::array kCQ_Steps{3,    5,    7,     9,     15,   31,
+                               63,   127,  255,   511,   1023, 2047,
+                               4095, 8191, 16383, 32767, 65535};
 
-inline constexpr std::array kCQ_C{
+constexpr std::array kCQ_C{
     1.3333333f, 1.6f,      1.1428571f, 1.77777778f, 1.0666667f,    1.0322581f,
     1.015873f,  1.007874f, 1.0039216f, 1.0019569f,  1.0009775f,    1.0004885f,
     1.0002442f, 1.000122f, 1.000061f,  1.0000305f,  1.00001525902f};
 
-inline constexpr std::array kCQ_D{
-    0.5f,           0.5f,           0.25f,          0.5f,
-    0.125f,         0.0625f,        0.03125f,       0.015625f,
-    0.0078125f,     0.00390625f,    0.001953125f,   0.0009765625f,
-    0.00048828125f, 0.00024414063f, 0.00012207031f, 0.00006103516f,
-    0.00003051758f};
+constexpr std::array kCQ_D{0.5f,           0.5f,           0.25f,
+                           0.5f,           0.125f,         0.0625f,
+                           0.03125f,       0.015625f,      0.0078125f,
+                           0.00390625f,    0.001953125f,   0.0009765625f,
+                           0.00048828125f, 0.00024414063f, 0.00012207031f,
+                           0.00006103516f, 0.00003051758f};
 
-inline constexpr std::array kCQ_Bits{5, 7,  3,  10, 4,  5,  6,  7, 8,
-                                     9, 10, 11, 12, 13, 14, 15, 16};
+constexpr std::array kCQ_Bits{5, 7,  3,  10, 4,  5,  6,  7, 8,
+                              9, 10, 11, 12, 13, 14, 15, 16};
 
-inline constexpr std::array kBitAlloc_Offset{0, 3, 3, 1, 2, 3, 4, 5};
+constexpr std::array kBitAlloc_Offset{0, 3, 3, 1, 2, 3, 4, 5};
 
-inline constexpr std::array kGroup{2, 3, 0, 4, 0, 0, 0, 0, 0,
-                                   0, 0, 0, 0, 0, 0, 0, 0};
+constexpr std::array kGroup{2, 3, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /*
  * dewin: D[i] * 32767 (i=0..511), 然后重新排序
  * D[]: Coefficients Di of the synthesis window. ISO/IEC 11172-3 ANNEX_B Table
  * 3-B.3
  */
-inline constexpr std::array<std::array<float, 16>, 32> kDewin =
+constexpr std::array<std::array<float, 16>, 32> kDewin =
     std::to_array<std::array<float, 16>, 32>(
         {// [32][16]
          {0.0f, -14.5f, 106.5f, -229.5f, 1018.5f, -2576.5f, 3287.0f, -18744.5f,
@@ -162,6 +188,7 @@ inline constexpr std::array<std::array<float, 16>, 32> kDewin =
          {-13.0f, -104.0f, -200.5f, -1031.5f, -2394.0f, -3567.0f, -17820.0f,
           -37496.0f, 19668.0f, -2979.5f, 2758.5f, -1000.0f, 259.5f, -109.0f,
           15.5f, 0.5f}});
+}  // namespace
 
 extern std::vector<std::vector<uint8_t>> const kNBal;
 

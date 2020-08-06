@@ -18,8 +18,12 @@
 //
 
 #include "header.h"
-[[maybe_unused]] void jmp123::decoder::Header::Initialize(long track_length,
-                                                          int  duration) {
+
+#include "tables.h"
+
+namespace jmp123::decoder {
+
+[[maybe_unused]] void Header::Initialize(long track_length, int duration) {
   track_length_   = track_length;
   duration_       = static_cast<float>(duration);
   header_mask_    = static_cast<int>(0xffe00000);
@@ -29,7 +33,7 @@
   side_info_size_ = toc_number_ = toc_per_ = toc_factor_ = frame_counter_ = 0;
   vbr_toc_ = nullptr;
 }
-void jmp123::decoder::Header::ParseHeader(int h) {
+void Header::ParseHeader(int h) {
   ver_id_             = static_cast<MPEGVersion>((h >> 19) & 3);
   layer_              = 4 - (h >> 17) & 3;
   protection_bit_     = (h >> 16) & 1;
@@ -74,7 +78,7 @@ void jmp123::decoder::Header::ParseHeader(int h) {
     main_data_size_ -= 2;  // CRC
   }
 }
-int jmp123::decoder::Header::Byte_2_Int(uint8_t *b, int off) {
+int Header::Byte_2_Int(uint8_t *b, int off) {
   int int32 = b[off++] & 0xff;
   int32 <<= 8;
   int32 |= b[off++] & 0xff;
@@ -84,19 +88,19 @@ int jmp123::decoder::Header::Byte_2_Int(uint8_t *b, int off) {
   int32 |= b[off] & 0xff;
   return int32;
 }
-int jmp123::decoder::Header::Byte_2_Short(uint8_t *b, int off) {
+int Header::Byte_2_Short(uint8_t *b, int off) {
   int int16 = b[off++] & 0xff;
   int16 <<= 8;
   int16 |= b[off] & 0xff;
   return int16;
 }
-bool jmp123::decoder::Header::Available(int h, int curmask) {
+bool Header::Available(int h, int curmask) {
   return (h & curmask) == curmask && ((h >> 19) & 3) != 1
       && ((h >> 17) & 3) != 0 && ((h >> 12) & 15) != 15 && ((h >> 12) & 15) != 0
       && ((h >> 10) & 3) != 3;
 }
-int  jmp123::decoder::Header::Offset() const { return idx_; }
-bool jmp123::decoder::Header::SyncFrame(uint8_t *b, int off, int end_pos) {
+int  Header::Offset() const { return idx_; }
+bool Header::SyncFrame(uint8_t *b, int off, int end_pos) {
   int h, mask = 0;
   int skip_bytes = 0;
   idx_           = off;
@@ -158,67 +162,41 @@ bool jmp123::decoder::Header::SyncFrame(uint8_t *b, int off, int end_pos) {
   frame_counter_++;
   return true;
 }
-bool jmp123::decoder::Header::IsMS() const { return is_MS_; }
-bool jmp123::decoder::Header::IsIntensityStereo() const {
-  return is_intensity_;
-}
-constexpr int jmp123::decoder::Header::GetBitrate() const {
+bool Header::IsMS() const { return is_MS_; }
+bool Header::IsIntensityStereo() const { return is_intensity_; }
+int  Header::GetBitrate() const {
   return kBitrateTable[lsf_][layer_ - 1][bitrate_index_];
 }
-constexpr int jmp123::decoder::Header::GetBitrateIndex() const {
-  return bitrate_index_;
-}
-constexpr int jmp123::decoder::Header::GetChannelCount() const {
-  return (mode_ == 3) ? 1 : 2;
-}
-constexpr int jmp123::decoder::Header::GetMode() const { return mode_; }
-constexpr int jmp123::decoder::Header::GetModeExtension() const {
-  return mode_extension_;
-}
-constexpr int jmp123::decoder::Header::GetVersion() const {
-  return static_cast<int>(ver_id_);
-}
-constexpr int jmp123::decoder::Header::GetLayer() const { return layer_; }
-constexpr int jmp123::decoder::Header::GetSamplingFrequency() const {
-  return sampling_frequency_;
-}
-constexpr int jmp123::decoder::Header::GetSamplingRate() const {
+int Header::GetBitrateIndex() const { return bitrate_index_; }
+int Header::GetChannelCount() const { return (mode_ == 3) ? 1 : 2; }
+int Header::GetMode() const { return mode_; }
+int Header::GetModeExtension() const { return mode_extension_; }
+int Header::GetVersion() const { return static_cast<int>(ver_id_); }
+int Header::GetLayer() const { return layer_; }
+int Header::GetSamplingFrequency() const { return sampling_frequency_; }
+int Header::GetSamplingRate() const {
   return kSamplingRateTable[static_cast<int>(ver_id_)][sampling_frequency_];
 }
-constexpr int jmp123::decoder::Header::GetMainDataSize() const {
-  return main_data_size_;
-}
-constexpr int jmp123::decoder::Header::GetSideInfoSize() const {
-  return side_info_size_;
-}
-constexpr int jmp123::decoder::Header::GetFrameSize() const {
-  return frame_size_;
-}
-constexpr int jmp123::decoder::Header::GetPcmSize() const {
+int Header::GetMainDataSize() const { return main_data_size_; }
+int Header::GetSideInfoSize() const { return side_info_size_; }
+int Header::GetFrameSize() const { return frame_size_; }
+int Header::GetPcmSize() const {
   int pcm_size = (ver_id_ == MPEGVersion::kMPEG1) ? 4608 : 2304;
   if (mode_ == 3) pcm_size >>= 1;
   return pcm_size;
 }
-constexpr int jmp123::decoder::Header::GetTrackLength() const {
-  return track_length_;
-}
-constexpr int jmp123::decoder::Header::GetFrameCounter() const {
-  return frame_counter_;
-}
-constexpr int jmp123::decoder::Header::GetTrackFrames() const {
-  return track_frames_;
-}
-constexpr int jmp123::decoder::Header::GetFrameDuration() const {
-  return frame_duration_;
-}
-constexpr int jmp123::decoder::Header::GetDuration() const { return duration_; }
-constexpr int jmp123::decoder::Header::GetElapse() const {
+int Header::GetTrackLength() const { return track_length_; }
+int Header::GetFrameCounter() const { return frame_counter_; }
+int Header::GetTrackFrames() const { return track_frames_; }
+int Header::GetFrameDuration() const { return frame_duration_; }
+int Header::GetDuration() const { return duration_; }
+int Header::GetElapse() const {
   return static_cast<int>(frame_counter_ * frame_duration_);
 }
-std::string jmp123::decoder::Header::GetVBRInfo() const {
+std::string Header::GetVBRInfo() const {
   return vbr_info_.gcount() == 0 ? "" : vbr_info_.str();
 }
-void jmp123::decoder::Header::ParseVBR(uint8_t *b, int off, int len) {
+void Header::ParseVBR(uint8_t *b, int off, int len) {
   int const max_off = off + frame_size_ - 4;
   if (max_off >= len) {
     return;
@@ -406,7 +384,7 @@ void jmp123::decoder::Header::ParseVBR(uint8_t *b, int off, int len) {
 
   // CRC-16 of Info Tag: 2-byte
 }
-int jmp123::decoder::Header::VBRIHeader(uint8_t *b, int off, int len) {
+int Header::VBRIHeader(uint8_t *b, int off, int len) {
   vbr_info_ << "   vbr header: vbri";
 
   int vbri_quality = Byte_2_Short(b, off + 8);
@@ -431,7 +409,7 @@ int jmp123::decoder::Header::VBRIHeader(uint8_t *b, int off, int len) {
   off += 26;
   return off;
 }
-int jmp123::decoder::Header::XingInfoHeader(uint8_t *b, int off, int len) {
+int Header::XingInfoHeader(uint8_t *b, int off, int len) {
   vbr_info_ << "   vbr header: ";
   vbr_info_ << std::string(reinterpret_cast<char *>(b + off), 4);
 
@@ -466,7 +444,7 @@ int jmp123::decoder::Header::XingInfoHeader(uint8_t *b, int off, int len) {
   toc_factor_ = 1;
   return off;
 }
-void jmp123::decoder::Header::PrintHeaderInfo() {
+void Header::PrintHeaderInfo() {
   if (header_mask_ == 0xffe00000)  // unsynced
     return;
   float       duration     = track_frames_ * frame_duration_;
@@ -506,10 +484,8 @@ void jmp123::decoder::Header::PrintHeaderInfo() {
   info << str_duration;
   std::cout << info.str();
 }
-void jmp123::decoder::Header::PrintVBRTag() const {
-  std::cout << vbr_info_.str();
-}
-void jmp123::decoder::Header::PrintProgress() {
+void Header::PrintVBRTag() const { std::cout << vbr_info_.str(); }
+void Header::PrintProgress() {
   float t = frame_counter_ * frame_duration_;
   int   m = static_cast<int>(t / 60);
   float s = t - 60 * m;
@@ -526,3 +502,5 @@ void jmp123::decoder::Header::PrintProgress() {
   std::cout << fmt::format("\r#{:-5d} [{:-41s}] {:02d}:{:05.2f} ",
                            frame_counter_, progress_.str(), m, s);
 }
+
+}  // namespace jmp123::decoder

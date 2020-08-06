@@ -27,7 +27,7 @@
 namespace jmp123::decoder {
 class Synthesis {
  private:
-  AudioBuffer audio_buffer_;
+  std::unique_ptr<AudioBuffer> audio_buffer_;
 
   /*
    * 向PCM缓冲区写入数据的步长值，左右声道的PCM数据在PCM缓冲区内是交替排列的。
@@ -46,17 +46,6 @@ class Synthesis {
   std::unique_ptr<int[]> fifo_index_;
 
   int max_pcm_;
-
-  /**
-   * 子带多相合成滤波构造器。
-   *
-   * @param ab
-   *            音频输出对象。
-   *
-   * @param channels
-   *            声道数，用于计算输出PCM时的步长值。
-   */
-  Synthesis(AudioBuffer ab, int channels);
 
   /**
    * 获取PCM最大峰值。
@@ -81,7 +70,19 @@ class Synthesis {
    * @param off
    * FIFO队列的偏移量。一个子带一次矩阵运算输出64个值连续存储到FIFO队列，存储的起始位置由off指定。
    */
-  void Dct32To64(float src[], float dest[], int off);
+  void Synthesis::Dct32To64(float *src, std::array<float, 1024> dest, int off);
+
+ public:
+  /**
+   * 子带多相合成滤波构造器。
+   *
+   * @param ab
+   *            音频输出对象。
+   *
+   * @param channels
+   *            声道数，用于计算输出PCM时的步长值。
+   */
+  Synthesis(std::unique_ptr<AudioBuffer> ab, int channels);
 };
 }  // namespace jmp123::decoder
 

@@ -24,9 +24,10 @@
 
 #include "bit_stream.h"
 #include "header.h"
+#include "layer123.h"
 
 namespace jmp123::decoder {
-class LayerI {
+class LayerI : LayerI_II_III {
   Header                                 header_;
   BitStream                              bs_;
   std::array<std::array<uint8_t, 32>, 2> allocation_;
@@ -34,7 +35,8 @@ class LayerI {
   std::array<std::array<float, 32>, 2>   syin_;
 
  public:
-  // TODO: Implement it, but it depends on AudioBuffer and Layer123, so I will implement those tow first
+  // TODO: Implement it, but it depends on AudioBuffer and Layer123, so I will
+  // implement those tow first
 };
 }  // namespace jmp123::decoder
 

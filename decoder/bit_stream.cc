@@ -40,8 +40,8 @@ int jmp123::decoder::BitStream::Append(uint8_t *b, int off, int len) {
 
 void jmp123::decoder::BitStream::Feed(std::unique_ptr<uint8_t[]> b, int off) {
   bit_reservoir_ = std::move(b);
-  byte_pos_ = off;
-  bit_pos_ = 0;
+  byte_pos_      = off;
+  bit_pos_       = 0;
 }
 
 int jmp123::decoder::BitStream::GetBits_17(int n) {

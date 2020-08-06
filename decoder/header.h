@@ -36,31 +36,6 @@ enum class MPEGVersion : int {
   kMPEG25   = 0,
 };
 
-constexpr std::array<std::array<std::array<int, 15>, 3>, 2> kBitrateTable{
-    std::to_array<std::array<int, 15>, 3>(
-        {// MPEG-1
-         // Layer I
-         {0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448},
-         // Layer II
-         {0, 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384},
-         // Layer III
-         {0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320}}),
-    std::to_array<std::array<int, 15>, 3>(
-        {// MPEG-2/2.5
-         // Layer I
-         {0, 32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256},
-         // Layer II
-         {0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160},
-         // Layer III
-         {0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160}})};
-
-constexpr std::array<std::array<int, 4>, 4> kSamplingRateTable{
-    std::to_array({11025, 12000, 8000, 0}),
-    std::to_array({0, 0, 0, 0}),
-    std::to_array({22050, 24000, 16000, 0}),
-    std::to_array({44100, 48000, 32000, 0}),
-};
-
 class Header {
  private:
   MPEGVersion ver_id_;
@@ -111,30 +86,30 @@ class Header {
   int idx_;
 
  public:
-  [[nodiscard]] int           Offset() const;
-  bool                        SyncFrame(uint8_t* b, int off, int end_pos);
-  [[nodiscard]] bool          IsMS() const;
-  [[nodiscard]] bool          IsIntensityStereo() const;
-  [[nodiscard]] constexpr int GetBitrate() const;
-  [[nodiscard]] constexpr int GetBitrateIndex() const;
-  [[nodiscard]] constexpr int GetChannelCount() const;
-  [[nodiscard]] constexpr int GetMode() const;
-  [[nodiscard]] constexpr int GetModeExtension() const;
-  [[nodiscard]] constexpr int GetVersion() const;
-  [[nodiscard]] constexpr int GetLayer() const;
-  [[nodiscard]] constexpr int GetSamplingFrequency() const;
-  [[nodiscard]] constexpr int GetSamplingRate() const;
-  [[nodiscard]] constexpr int GetMainDataSize() const;
-  [[nodiscard]] constexpr int GetSideInfoSize() const;
-  [[nodiscard]] constexpr int GetFrameSize() const;
-  [[nodiscard]] constexpr int GetPcmSize() const;
-  [[nodiscard]] constexpr int GetTrackLength() const;
-  [[nodiscard]] constexpr int GetFrameCounter() const;
-  [[nodiscard]] constexpr int GetTrackFrames() const;
-  [[nodiscard]] constexpr int GetFrameDuration() const;
-  [[nodiscard]] constexpr int GetDuration() const;
-  [[nodiscard]] constexpr int GetElapse() const;
-  [[nodiscard]] std::string   GetVBRInfo() const;
+  [[nodiscard]] int         Offset() const;
+  bool                      SyncFrame(uint8_t* b, int off, int end_pos);
+  [[nodiscard]] bool        IsMS() const;
+  [[nodiscard]] bool        IsIntensityStereo() const;
+  [[nodiscard]] int         GetBitrate() const;
+  [[nodiscard]] int         GetBitrateIndex() const;
+  [[nodiscard]] int         GetChannelCount() const;
+  [[nodiscard]] int         GetMode() const;
+  [[nodiscard]] int         GetModeExtension() const;
+  [[nodiscard]] int         GetVersion() const;
+  [[nodiscard]] int         GetLayer() const;
+  [[nodiscard]] int         GetSamplingFrequency() const;
+  [[nodiscard]] int         GetSamplingRate() const;
+  [[nodiscard]] int         GetMainDataSize() const;
+  [[nodiscard]] int         GetSideInfoSize() const;
+  [[nodiscard]] int         GetFrameSize() const;
+  [[nodiscard]] int         GetPcmSize() const;
+  [[nodiscard]] int         GetTrackLength() const;
+  [[nodiscard]] int         GetFrameCounter() const;
+  [[nodiscard]] int         GetTrackFrames() const;
+  [[nodiscard]] int         GetFrameDuration() const;
+  [[nodiscard]] int         GetDuration() const;
+  [[nodiscard]] int         GetElapse() const;
+  [[nodiscard]] std::string GetVBRInfo() const;
 
  private:
   void ParseVBR(uint8_t b[], int off, int len);

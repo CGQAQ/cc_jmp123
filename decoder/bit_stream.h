@@ -26,8 +26,8 @@
 namespace jmp123::decoder {
 class BitStream {
  protected:
-  int bit_pos_;
-  int byte_pos_;
+  int                        bit_pos_;
+  int                        byte_pos_;
   std::unique_ptr<uint8_t[]> bit_reservoir_;
 
  private:
@@ -55,6 +55,6 @@ class BitStream {
 
   void SkipBits(int n);
 };
-}  // namespace jmp123
+}  // namespace jmp123::decoder
 
 #endif  // JMP123_BIT_STREAM_H

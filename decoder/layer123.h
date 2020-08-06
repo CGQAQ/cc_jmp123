@@ -20,10 +20,48 @@
 #ifndef JMP123_LAYER123_H
 #define JMP123_LAYER123_H
 
+#include "audio_buffer.h"
+#include "audio_interface.h"
+#include "header.h"
+#include "synthesis.h"
+
 namespace jmp123::decoder {
 class LayerI_II_III {
+ protected:
+  std::unique_ptr<Synthesis> filter_;
 
+ private:
+  std::unique_ptr<AudioBuffer> audio_buffer_;
+
+ public:
+  LayerI_II_III(Header h, std::unique_ptr<IAudio> audio);
+  ~LayerI_II_III() = default;
+
+  /**
+   * 从此字节输入流中给定偏移量处开始解码一帧。
+   *
+   * @param b
+   *            源数据缓冲区。
+   * @param off
+   *            开始解码字节处的偏移量。
+   * @return
+   * 源数据缓冲区新的偏移量，用于计算解码下一帧数据的开始位置在源数据缓冲区的偏移量。
+   */
+  virtual int decodeFrame(uint8_t b[], int off) = 0;
+
+  /**
+   * 音频输出。完成一帧多相合成滤波后调用此方法将多相合成滤波输出的PCM数据写入音频输出对象。
+   * @see AudioBuffer#output()
+   */
+  void outputAudio();
+
+  /**
+   * 音频输出缓冲区的全部内容刷向音频输出对象并将缓冲区偏移量复位。
+   *
+   * @see AudioBuffer#flush()
+   */
+  void close();
 };
-}
+}  // namespace jmp123::decoder
 
 #endif  // JMP123_LAYER123_H

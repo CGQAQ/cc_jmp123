@@ -18,3 +18,15 @@
 //
 
 #include "layer123.h"
+namespace jmp123::decoder {
+
+LayerI_II_III::LayerI_II_III(Header h, std::unique_ptr<IAudio> audio)
+    : audio_buffer_(
+        std::make_unique<AudioBuffer>(std::move(audio), 4 * h.GetPcmSize())),
+      filter_(std::make_unique<Synthesis>(std::move(audio_buffer_),
+                                          h.GetChannelCount())) {}
+
+void LayerI_II_III::outputAudio() { audio_buffer_->Output(); }
+void LayerI_II_III::close() { audio_buffer_->Flush(); }
+
+}  // namespace jmp123::decoder

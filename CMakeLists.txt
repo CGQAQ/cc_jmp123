@@ -8,10 +8,15 @@ add_executable(jmp123 main.cpp)
 target_sources(
         jmp123 PUBLIC
         decoder/audio_buffer.cc
+        decoder/audio_buffer.h
         decoder/bit_stream.cc
+        decoder/bit_stream.h
         decoder/header.cc
+        decoder/header.h
         decoder/tables.cc
+        decoder/tables.h
         decoder/layer_1.cc
+        decoder/layer_1.h
         decoder/layer123.cc
         decoder/layer123.h
         decoder/synthesis.cc

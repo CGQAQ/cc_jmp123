@@ -24,7 +24,7 @@ AudioBuffer::AudioBuffer(std::unique_ptr<IAudio> audio, int size)
   pcm_buf_ = std::make_unique<uint8_t[]>(size);
   off_     = std::unique_ptr<int[]>(new int[2]{0, 2});
 }
-}
+}  // namespace jmp123::decoder
 void jmp123::decoder::AudioBuffer::Output() {
   if (off_[0] == size_) {
     if (audio_ != nullptr) audio_->Write(pcm_buf_.get(), size_);
