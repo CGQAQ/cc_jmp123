@@ -22,8 +22,8 @@ namespace jmp123::decoder {
 SynthesisConcurrent::SynthesisConcurrent(const LayerIII& owner, int ch)
     : owner_(owner), ch_(ch), pause_(true), alive_(true) {
   samples_.fill(0);
-  pre_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules);
-  cur_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules);
+  pre_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules_);
+  cur_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules_);
 }
 auto SynthesisConcurrent::StartSynthesis() {
   // 1. 交换缓冲区
@@ -46,11 +46,11 @@ void SynthesisConcurrent::Shutdown() {
 }
 void SynthesisConcurrent::operator()() {
   int   gr = 0, sub = 0, ss = 0, i = 0;
-  int   granules = owner_.granules;
+  int   granules = owner_.granules_;
   auto& filter   = owner_.filter_;
 
   while (alive_) {
-    auto lock = std::unique_lock<std::mutex>(pause_mutex_);
+    std::unique_lock<std::mutex> lock(pause_mutex_);
     while (pause_) notifier_.wait(lock);
     pause_ = true;
 
@@ -72,6 +72,6 @@ void SynthesisConcurrent::operator()() {
   }
 
   // 3. 提交结果
-  owner_->SubmitSynthesis();
+  owner_.SubmitSynthesis();
 }
 }  // namespace jmp123::decoder

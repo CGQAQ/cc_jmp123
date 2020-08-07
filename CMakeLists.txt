@@ -24,6 +24,7 @@ target_sources(
         decoder/layer_2.cc decoder/layer_2.h
         decoder/layer_3.cc decoder/layer_3.h
         decoder/synthesis_concurrent.cc decoder/synthesis_concurrent.h
+        decoder/bit_stream_main_data.cc decoder/bit_stream_main_data.h
 )
 
 add_subdirectory(third_party/fmt)
