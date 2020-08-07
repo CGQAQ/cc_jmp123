@@ -25,10 +25,11 @@
 #include <condition_variable>
 #include <vector>
 
-#include "layer_3.h"
 #include "synthesis.h"
 
 namespace jmp123::decoder {
+
+class LayerIII;
 
 class SynthesisConcurrent {
  private:
@@ -36,7 +37,7 @@ class SynthesisConcurrent {
   std::array<float, 32>                   samples_;
   std::vector<std::array<float, 32 * 18>> pre_xr_;
   std::vector<std::array<float, 32 * 18>> cur_xr_;
-  LayerIII const&                         owner_;
+  LayerIII const &                     owner_;
 
   std::condition_variable notifier_;
   std::atomic_bool        pause_, alive_;

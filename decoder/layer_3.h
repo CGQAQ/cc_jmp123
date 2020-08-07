@@ -21,10 +21,12 @@
 #define JMP123_LAYER_3_H
 
 #include "bit_stream.h"
-#include "bit_stream_main_data.h"
 #include "layer123.h"
 #include "synthesis_concurrent.h"
 namespace jmp123::decoder {
+
+class BitStreamMainData;
+
 class LayerIII : public LayerI_II_III {
  public:
   struct ChannelInformation {
@@ -71,7 +73,7 @@ class LayerIII : public LayerI_II_III {
   Header    header_;
   BitStream bs_si_;
   // TODO: implement BitStreamMainData.java first
-  BitStreamMainData                     main_data_stream_;
+  std::unique_ptr<BitStreamMainData>    main_data_stream_;
   int                                   main_data_begin_;
   std::unique_ptr<int[]>                scfsi_;
   std::unique_ptr<ChannelInformation**> channel_info_;
@@ -83,6 +85,7 @@ class LayerIII : public LayerI_II_III {
   int                                   semaphore;
 
  public:
+  void SubmitSynthesis() const;
 };
 }  // namespace jmp123::decoder
 

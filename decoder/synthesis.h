@@ -71,7 +71,7 @@ class Synthesis {
    * @param off
    * FIFO队列的偏移量。一个子带一次矩阵运算输出64个值连续存储到FIFO队列，存储的起始位置由off指定。
    */
-  void Synthesis::Dct32To64(std::array<float, 32>   src, std::array<float, 1024> dest, int off);
+  void Dct32To64(std::array<float, 32>   src, std::array<float, 1024> dest, int off);
 
 
   /**

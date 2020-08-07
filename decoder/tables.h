@@ -21,6 +21,7 @@
 #define JMP123_TABLES_H
 
 #include <array>
+#include <cstdint>
 #include <vector>
 namespace jmp123::decoder {
 

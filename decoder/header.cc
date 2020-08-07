@@ -464,7 +464,7 @@ void Header::PrintHeaderInfo() {
     info << "MPEG-1";
   info << ", Layer " << layer_;
   info << ", " << GetSamplingRate() << "Hz, ";
-  info << str_bitrate_;
+  info << *str_bitrate_;
   if (mode_ == 0)
     info << ", Stereo";
   else if (mode_ == 1)

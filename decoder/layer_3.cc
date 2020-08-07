@@ -20,4 +20,5 @@
 #include "layer_3.h"
 namespace jmp123::decoder {
 
+void LayerIII::SubmitSynthesis() const {}
 }

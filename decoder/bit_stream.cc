@@ -19,6 +19,8 @@
 
 #include "bit_stream.h"
 
+#include <cstring>
+
 jmp123::decoder::BitStream::BitStream(int len, int extr)
     : bit_pos_(0), byte_pos_(0), end_pos_(0), max_off_(len) {
   bit_reservoir_ = std::make_unique<uint8_t[]>(len + extr);
