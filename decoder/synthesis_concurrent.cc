@@ -22,7 +22,7 @@
 #include "layer_3.h"
 
 namespace jmp123::decoder {
-SynthesisConcurrent::SynthesisConcurrent(const LayerIII& owner, int ch)
+SynthesisConcurrent::SynthesisConcurrent(LayerIII& owner, int ch)
     : owner_(owner), ch_(ch), pause_(true), alive_(true) {
   samples_.fill(0);
   pre_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules_);

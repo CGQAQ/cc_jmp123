@@ -22,15 +22,18 @@
 #include <cstring>
 
 jmp123::decoder::BitStream::BitStream(int len, int extr)
-    : bit_pos_(0), byte_pos_(0), end_pos_(0), max_off_(len) {
-  bit_reservoir_ = std::make_unique<uint8_t[]>(len + extr);
-}
+    : bit_pos_(0),
+      byte_pos_(0),
+      end_pos_(0),
+      max_off_(len),
+      bit_reservoir_(std::vector<uint8_t>(len + extr)) {}
 
-int jmp123::decoder::BitStream::Append(uint8_t *b, int off, int len) {
+int jmp123::decoder::BitStream::Append(std::vector<uint8_t> b, int off, int len) {
   if (len + end_pos_ > max_off_) {
     // std::copy(bit_reservoir_ + byte_pos_, bit_reservoir_)
-    std::memcpy(bit_reservoir_.get(), &bit_reservoir_[byte_pos_],
-                end_pos_ - byte_pos_);
+    //    std::memcpy(bit_reservoir_.get(), &bit_reservoir_[byte_pos_],
+    //                end_pos_ - byte_pos_);
+    std::copy(bit_reservoir_.begin() + byte_pos_, bit_reservoir_.end(), bit_reservoir_.begin());
     end_pos_ -= byte_pos_;
     bit_pos_ = byte_pos_ = 0;
   }
@@ -40,8 +43,8 @@ int jmp123::decoder::BitStream::Append(uint8_t *b, int off, int len) {
   return len;
 }
 
-void jmp123::decoder::BitStream::Feed(std::unique_ptr<uint8_t[]> b, int off) {
-  bit_reservoir_ = std::move(b);
+void jmp123::decoder::BitStream::Feed(std::vector<uint8_t> other, int off) {
+  bit_reservoir_ = other;
   byte_pos_      = off;
   bit_pos_       = 0;
 }

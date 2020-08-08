@@ -246,12 +246,12 @@ namespace jmp123::decoder {
 // 1.
 //>>>>SIDE INFORMATION (part1)=============================================
 // private int part2_3_bits;//----debug
-int LayerIII::GetSideInfo(std::unique_ptr<uint8_t[]> b, int off) {
+int LayerIII::GetSideInfo(std::vector<uint8_t> const& b, int off) {
   int                ch, gr;
   ChannelInformation ci;
 
   // part2_3_bits = 0;
-  bs_si_.Feed(std::move(b), off);
+  bs_si_.Feed(b, off);
 
   if (is_mpeg_1_) {
     main_data_begin_ = bs_si_.GetBits_9(9);
@@ -1076,7 +1076,7 @@ void LayerIII::hybrid(int gr, int ch, std::array<float, 32 * 18>& xrch,
     preb[i] = 0;
   }
 }
-int LayerIII::DecodeFrame(uint8_t* b, int off) {
+int LayerIII::DecodeFrame(std::vector<uint8_t> b, int off) {
   /*
    * part1 : side information
    */
@@ -1139,13 +1139,12 @@ int LayerIII::DecodeFrame(uint8_t* b, int off) {
   // 更好的方法是放在解码下一帧主数据之前处理，如果位流错误，可以顺便纠正。
 
   try {
-    synchronized(this) {
-      while (semaphore < channels)  // 等待上一帧channels个声道完成多相合成滤波
-        wait();
-      semaphore = 0;  // 信号量置0
-    }
-  } catch (InterruptedException e) {
-    close();
+    std::unique_lock lock{notifier_mutex_};
+    while (semaphore_ < channels_)  // 等待上一帧channels个声道完成多相合成滤波
+      notifier_.wait(lock);
+    semaphore_ = 0;  // 信号量置0
+  } catch (std::exception& e) {
+    Close();
     return off;
   }
 
@@ -1160,7 +1159,7 @@ int LayerIII::DecodeFrame(uint8_t* b, int off) {
 }
 void LayerIII::Close() {
   semaphore_ = channels_;
-  notify();
+  notifier_.notify_one();
 
   LayerI_II_III::Close();
 
@@ -1168,11 +1167,8 @@ void LayerIII::Close() {
   if (channels_ == 2) filter_ch_1.Shutdown();
 }
 
-void LayerIII::SubmitSynthesis()  {
-  if (++semaphore_ == channels_)
-    notify();
+void LayerIII::SubmitSynthesis() {
+  if (++semaphore_ == channels_) notifier_.notify_one();
 }
-
-
 
 }  // namespace jmp123::decoder

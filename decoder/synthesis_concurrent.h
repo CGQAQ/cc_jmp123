@@ -37,7 +37,7 @@ class SynthesisConcurrent {
   std::array<float, 32>                   samples_;
   std::vector<std::array<float, 32 * 18>> pre_xr_;
   std::vector<std::array<float, 32 * 18>> cur_xr_;
-  LayerIII const &                     owner_;
+  LayerIII& owner_;
 
   std::condition_variable notifier_;
   std::atomic_bool        pause_, alive_;
@@ -48,7 +48,7 @@ class SynthesisConcurrent {
   //  std::jthread
 
  public:
-  SynthesisConcurrent(LayerIII const& owner, int ch);
+  SynthesisConcurrent(LayerIII & owner, int ch);
 
   /**
    * 交换缓冲区并唤醒SynthesisConcurrent线程。

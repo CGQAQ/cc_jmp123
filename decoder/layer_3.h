@@ -20,9 +20,14 @@
 #ifndef JMP123_LAYER_3_H
 #define JMP123_LAYER_3_H
 
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
+
 #include "bit_stream.h"
 #include "layer123.h"
 #include "synthesis_concurrent.h"
+
 namespace jmp123::decoder {
 
 class BitStreamMainData;
@@ -85,7 +90,6 @@ class LayerIII : public LayerI_II_III {
   bool                                         is_mpeg_1_;
   SynthesisConcurrent                          filter_ch_0_;
   SynthesisConcurrent                          filter_ch_1;
-  int                                          semaphore_;
 
  public:
   [[maybe_unused]] LayerIII(Header h, std::unique_ptr<IAudio> audio);
@@ -94,7 +98,7 @@ class LayerIII : public LayerI_II_III {
   //>>>>SIDE INFORMATION (part1)=============================================
   // private int part2_3_bits;//----debug
  private:
-  int GetSideInfo(std::unique_ptr<uint8_t[]> b, int off);
+  int GetSideInfo(std::vector<uint8_t> const& b, int off);
   //<<<<SIDE INFORMATION=====================================================
 
  private:
@@ -220,11 +224,15 @@ class LayerIII : public LayerI_II_III {
   //
  public:
   //<<<<OUTPUT PCM SAMPLES===================================================
+  std::condition_variable notifier_;
+  std::mutex              notifier_mutex_;
+  std::atomic_int         semaphore_;
+
   /**
    * 解码1帧Layer Ⅲ
    */
 
-  int DecodeFrame(uint8_t* b, int off) override;
+  int DecodeFrame(std::vector<uint8_t> b, int off) override;
 
   /**
    * 关闭帧的解码。如果用多线程并发解码，这些并发的解码线程将被终止。

@@ -51,7 +51,7 @@ class LayerI : LayerI_II_III {
   float Requantization(int ch, int sb, int nb);
 
  public:
-  int DecodeFrame(uint8_t b[], int off) override;
+  int DecodeFrame(std::vector<uint8_t> b, int off) override;
 };
 }  // namespace jmp123::decoder
 
