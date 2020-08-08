@@ -56,7 +56,7 @@ class SynthesisConcurrent {
    * @return
    * 一个空闲的缓冲区，该缓冲区用于使用SynthesisConcurrent线程的对象在逆量化、抗锯齿和IMDCT时暂存数据。
    */
-  auto StartSynthesis();
+  std::vector<std::array<float, 32 * 18>> StartSynthesis();
 
   /**
    * 获取一个空闲的缓冲区。
@@ -64,7 +64,7 @@ class SynthesisConcurrent {
    * @return
    * 一个空闲的缓冲区，该缓冲区用于使用SynthesisConcurrent的对象在逆量化、抗锯齿和IMDCT时暂存数据。
    */
-  auto GetBuffer();
+  std::vector<std::array<float, 32 * 18>> GetBuffer();
 
   /**
    * 关闭SynthesisConcurrent线程。
@@ -75,7 +75,6 @@ class SynthesisConcurrent {
    * 使用SynthesisConcurrent的对象创建一个线程时，启动该线程将导致在独立执行的线程中调用SynthesisConcurrent的
    * run 方法进行异步多相合成滤波。
    */
-
   void operator()();
 };
 

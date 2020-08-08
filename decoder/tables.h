@@ -469,6 +469,10 @@ constexpr std::array htc1{// 16
                           1039, 1038, 1037, 1036, 1035, 1034, 1033, 1032,
                           1031, 1030, 1029, 1028, 1027, 1026, 1025, 1024};
 
+// ISO/IEC 11172-3 ANNEX B,Table 3-B.6. Layer III Preemphasis
+constexpr std::array pretab{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                  1, 1, 1, 1, 2, 2, 3, 3, 3, 2, 0};
+
 
 
 }  // namespace
@@ -478,5 +482,7 @@ extern std::vector<std::vector<uint8_t>> const kNBal;
 extern std::vector<std::vector<uint8_t>> const kSBQuant_Offset;
 
 extern std::vector<std::vector<uint8_t>> const kOffsetTable;
+
+extern std::vector<std::vector<float>> kIMDCTWin;
 }  // namespace jmp123::decoder
 #endif  // JMP123_TABLES_H

@@ -52,7 +52,6 @@ class Header {
   int  side_info_size_;
   int  lsf_;
   int  header_mask_;
-  bool is_MS_;
   bool is_intensity_;
   bool sync_;
 
@@ -82,6 +81,8 @@ class Header {
 
   bool Available(int h, int curmask);
 
+ private:
+  bool is_MS_;
  private:
   int idx_;
 

@@ -28,7 +28,7 @@ SynthesisConcurrent::SynthesisConcurrent(const LayerIII& owner, int ch)
   pre_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules_);
   cur_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules_);
 }
-auto SynthesisConcurrent::StartSynthesis() {
+std::vector<std::array<float, 32 * 18>> SynthesisConcurrent::StartSynthesis() {
   // 1. 交换缓冲区
   auto p  = pre_xr_;
   pre_xr_ = cur_xr_;
@@ -41,7 +41,7 @@ auto SynthesisConcurrent::StartSynthesis() {
   // 3. 返回"空闲的"缓冲区，该缓冲区内的数据已被run()方法使用完毕
   return pre_xr_;
 }
-auto SynthesisConcurrent::GetBuffer() { return pre_xr_; }
+std::vector<std::array<float, 32 * 18>> SynthesisConcurrent::GetBuffer() { return pre_xr_; }
 void SynthesisConcurrent::Shutdown() {
   alive_ = false;
   pause_ = false;

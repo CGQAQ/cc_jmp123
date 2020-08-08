@@ -55,7 +55,7 @@ class LayerI_II_III {
    */
   void OutputAudio();
 
-  /**
+  virtual /**
    * 音频输出缓冲区的全部内容刷向音频输出对象并将缓冲区偏移量复位。
    *
    * @see AudioBuffer#flush()

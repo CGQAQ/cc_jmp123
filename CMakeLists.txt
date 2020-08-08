@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(jmp123 main.cpp)
 
+# link pThread
+find_package(Threads)
+target_link_libraries(jmp123 ${CMAKE_THREAD_LIBS_INIT})
+
 target_sources(
         jmp123 PUBLIC
         decoder/audio_buffer.cc

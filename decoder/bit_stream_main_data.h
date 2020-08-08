@@ -22,10 +22,16 @@
 
 #include "bit_stream.h"
 #include "layer_3.h"
+#include "tables.h"
 
 namespace jmp123::decoder {
 
-class BitStreamMainData : BitStream {
+class BitStreamMainData : public BitStream {
+ private:
+  std::array<int, 3>  region_{};
+  int const**         htbv_;
+  std::array<int, 32> lin_{};
+
  public:
   /**
    * 创建一个位流BitStreamMainData对象，位流的缓冲区大小len指定，位流的缓冲区尾部空出的长度由extra指定。
@@ -36,10 +42,20 @@ class BitStreamMainData : BitStream {
    *            缓冲区尾部空出的字节数。
    * @see BitStream #BitStream(int, int)
    */
-  BitStreamMainData(int len, int extra) : BitStream(len, extra) {}
-  int DecodeHuff() {return 1;}
+  BitStreamMainData(int len, int extra);
+
+  /**
+   * 一个粒度组内的一个声道哈夫曼解码。
+   *
+   * @param ci
+   *            一粒度内的一声道信息。
+   * @param hv
+   *            接收解码得到的576个值。
+   * @return 576减去rzone区长度。
+   */
+  int DecodeHuff(LayerIII::ChannelInformation const& ci, std::array<int, 32 * 18 + 4> hv);
 };
 
-}
+}  // namespace jmp123::decoder
 
 #endif  // JMP123_BIT_STREAM_MAIN_DATA_H
