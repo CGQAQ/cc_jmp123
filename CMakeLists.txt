@@ -3,7 +3,8 @@ project(jmp123)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(jmp123 main.cpp)
+add_executable(jmp123 main.cc output/output.cc output/output.h playback.cc playback.h)
+target_include_directories(jmp123 PUBLIC .)
 
 # link pThread
 find_package(Threads)
@@ -32,7 +33,12 @@ target_sources(
 )
 
 add_subdirectory(third_party/fmt)
-
 # fmt library
 target_include_directories(jmp123 PUBLIC third_party/fmt/include)
 target_link_libraries(jmp123 fmt::fmt)
+
+set(RTAUDIO_BUILD_STATIC_LIBS)
+set(RTAUDIO_API_JACK OFF CACHE BOOL "" FORCE)
+add_subdirectory(third_party/rtaudio)
+target_include_directories(jmp123 PUBLIC third_party/rtaudio)
+target_link_libraries(jmp123 rtaudio)

@@ -1,3 +1,6 @@
 [submodule "third_party/fmt"]
 	path = third_party/fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "third_party/rtaudio"]
+	path = third_party/rtaudio
+	url = https://github.com/thestk/rtaudio.git

@@ -28,7 +28,6 @@
 namespace jmp123::decoder {
 class IAudio {
  public:
-  ~IAudio() = default;
   /**
    * 打开源数据行（音频输出设备）。
    *

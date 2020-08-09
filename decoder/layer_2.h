@@ -28,7 +28,7 @@
 #include "layer123.h"
 
 namespace jmp123::decoder {
-class LayerII : LayerI_II_III {
+class LayerII : public LayerI_II_III {
  private:
   Header                                 header_;
   std::unique_ptr<BitStream>             bs_;

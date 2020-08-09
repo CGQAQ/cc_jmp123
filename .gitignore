@@ -1,2 +1,5 @@
 cmake-*
 .idea
+build
+
+*.mp3
