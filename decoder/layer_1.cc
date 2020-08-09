@@ -78,7 +78,7 @@ int LayerI::DecodeFrame(std::vector<uint8_t> b, int off) {
         for (ch = 0; ch < nch; ch++) syin_[ch][sb] = 0;
 
     // 4. Synthesis subband filter
-    for (ch = 0; ch < nch; ch++) filter_->SynthesisSubBand(syin_[ch], ch);
+    for (ch = 0; ch < nch; ch++) filter_.SynthesisSubBand(syin_[ch], ch);
   }
   // 5. Ancillary bits
   int discard = main_data_bytes + main_data_begin - bs_->GetBytePos();

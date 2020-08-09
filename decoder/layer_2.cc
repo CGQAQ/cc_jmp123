@@ -180,7 +180,7 @@ int LayerII::DecodeFrame(std::vector<uint8_t> b, int off) {
      * 5. Synthesis subband filter
      */
     for (ch = 0; ch < channels_; ch++)
-      for (s = 0; s < 3; s++) filter_->SynthesisSubBand(syin_[ch][s], ch);
+      for (s = 0; s < 3; s++) filter_.SynthesisSubBand(syin_[ch][s], ch);
   }  // for(gr...)
 
   /*

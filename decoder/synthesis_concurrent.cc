@@ -62,7 +62,7 @@ void SynthesisConcurrent::operator()() {
       for (ss = 0, sub = 0; sub < 32; ++sub, i += 18) {
         samples_[sub] = xr[i];
       }
-      filter->SynthesisSubBand(samples_, ch_);
+      filter.SynthesisSubBand(samples_, ch_);
 
       for (i = ss + 1, sub = 0; sub < 32; sub += 2, i += 36) {
         samples_[sub] = xr[i];
@@ -70,7 +70,7 @@ void SynthesisConcurrent::operator()() {
         // 多相频率倒置(INVERSE QUANTIZE SAMPLES)
         samples_[sub + 1] = -xr[i + 18];
       }
-      filter->SynthesisSubBand(samples_, ch_);
+      filter.SynthesisSubBand(samples_, ch_);
     }
   }
 

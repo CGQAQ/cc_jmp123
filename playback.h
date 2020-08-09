@@ -7,9 +7,10 @@
 
 #include <decoder/audio_interface.h>
 
-#include "decoder/header.h"
-#include <fstream>
 #include <filesystem>
+#include <fstream>
+
+#include "decoder/header.h"
 #include "decoder/layer123.h"
 #include "decoder/layer_1.h"
 #include "decoder/layer_2.h"
@@ -18,10 +19,10 @@
 namespace jmp123 {
 class Playback {
   constexpr static int BUFLEN = 8192;
-  std::vector<uint8_t>      buf;
-  bool                      eof, paused;
+  std::vector<uint8_t> buf;
+  bool                 eof, paused;
   //  RandomRead instream;
-  std::basic_ifstream<uint8_t> instream;
+  std::ifstream instream;
   //  ID3Tag id3tag;
   int                              off, maxOff;
   decoder::Header                  header;
@@ -34,9 +35,12 @@ class Playback {
     // id3tag = new ID3Tag();
   }
 
-
   bool Open(std::string name, std::string title) {
-    instream = std::basic_ifstream<uint8_t>(name);
+    maxOff = 8192;
+    off    = 0;
+    paused = eof = false;
+
+    instream  = std::ifstream(name);
     auto size = std::filesystem::file_size(name);
     header.Initialize(size, 0);
     NextHeader();
@@ -46,9 +50,9 @@ class Playback {
 
   bool Start(bool verbose) {
     using namespace decoder;
-    LayerI_II_III* layer = nullptr;
-    int frames = 0;
-    paused = false;
+    LayerI_II_III* layer  = nullptr;
+    int            frames = 0;
+    paused                = false;
 
     switch (header.GetLayer()) {
       case 1:
@@ -68,22 +72,21 @@ class Playback {
       // 1. 解码一帧并输出(播放)
       off = layer->DecodeFrame(buf, off);
 
-      if (verbose && (++frames & 0x7) == 0)
-        header.PrintProgress();
+      if (verbose && (++frames & 0x7) == 0) header.PrintProgress();
 
       // 2. 定位到下一帧并解码帧头
       NextHeader();
 
       // 3. 检测并处理暂停
       if (paused) {
-          while (paused && !eof);
+        while (paused && !eof)
+          ;
       }
     }
     if (verbose) {
       header.PrintProgress();
       std::cout << std::endl;
     }
-
   }
 
   //====================================================================
@@ -95,8 +98,13 @@ class Playback {
       off = header.Offset();
       len = maxOff - off;
       //      System.arraycopy(buf, off, buf, 0, len);
-      memmove(buf.data(), buf.data() + off, buf.size() - off);
-      maxOff = len + instream.readsome(buf.data() + off, len);
+      memmove(buf.data(), buf.data() + off, len);
+      off = len;
+      len = maxOff - off;
+
+      auto readed = instream.readsome(reinterpret_cast<char *>(buf.data() + off), len);
+
+      maxOff = maxOff - len + readed;
       off    = 0;
       if (maxOff <= len || (chunk += BUFLEN) > 0x10000) eof = true;
     }

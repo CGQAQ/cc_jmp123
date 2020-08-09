@@ -27,11 +27,10 @@
 
 namespace jmp123::decoder {
 class LayerI_II_III {
- public:
-  std::unique_ptr<Synthesis> filter_;
-
  private:
-  std::unique_ptr<AudioBuffer> audio_buffer_;
+  AudioBuffer audio_buffer_;
+ public:
+  Synthesis filter_;
 
  public:
   LayerI_II_III(const Header &h, std::unique_ptr<IAudio> audio);
@@ -53,7 +52,7 @@ class LayerI_II_III {
    * 音频输出。完成一帧多相合成滤波后调用此方法将多相合成滤波输出的PCM数据写入音频输出对象。
    * @see AudioBuffer#output()
    */
-  void OutputAudio();
+  [[noreturn]] void OutputAudio();
 
   virtual /**
    * 音频输出缓冲区的全部内容刷向音频输出对象并将缓冲区偏移量复位。

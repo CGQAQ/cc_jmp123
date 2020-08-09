@@ -37,9 +37,9 @@ namespace jmp123::decoder {
                  == static_cast<int>(static_cast<int>(MPEGVersion::kMPEG1))),
       channels_(h.GetChannelCount()),
       bs_si_(BitStream(0, 0)),
+      granules_(is_mpeg_1_ ? 2: 1),
       filter_ch_0_(SynthesisConcurrent(*this, 0)),
       filter_ch_1((SynthesisConcurrent(*this, 1))) {
-  granules_         = is_mpeg_1_ ? 2 : 1;
   semaphore_        = channels_;
   main_data_stream_ = std::make_unique<BitStreamMainData>(4096, 512);
   scfsi_            = std::vector<int>(channels_, 0);
@@ -60,11 +60,11 @@ namespace jmp123::decoder {
   // TODO: Maybe we should change thread callback function from operator() to
   // normal function like `void Run();`
   // TODO: CONSIDER SAVE HANDLE AND JOIN IT WHEN DESTRUCT
-  std::thread t1{&SynthesisConcurrent::operator(), &filter_ch_0_};
+  t1    = std::thread{&SynthesisConcurrent::operator(), &filter_ch_0_};
   xrch0 = filter_ch_0_.GetBuffer();
   preBlckCh0.fill(0);
   if (channels_ == 2) {
-    std::thread t2{&SynthesisConcurrent::operator(), &filter_ch_1};
+    t2    = std::thread{&SynthesisConcurrent::operator(), &filter_ch_1};
     xrch1 = filter_ch_1.GetBuffer();
     preBlckCh1.fill(0);
   }

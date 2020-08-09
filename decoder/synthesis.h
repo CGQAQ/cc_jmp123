@@ -27,7 +27,7 @@
 namespace jmp123::decoder {
 class Synthesis {
  private:
-  std::unique_ptr<AudioBuffer> audio_buffer_;
+  AudioBuffer& audio_buffer_;
 
   /*
    * 向PCM缓冲区写入数据的步长值，左右声道的PCM数据在PCM缓冲区内是交替排列的。
@@ -43,7 +43,7 @@ class Synthesis {
   /*
    * fifobuf的偏移量，用它完成FIFO队列的移位操作。
    */
-  std::unique_ptr<int[]> fifo_index_;
+  std::vector<int> fifo_index_;
 
   int max_pcm_;
 
@@ -83,7 +83,7 @@ class Synthesis {
    * @param channels
    *            声道数，用于计算输出PCM时的步长值。
    */
-  Synthesis(std::unique_ptr<AudioBuffer> ab, int channels);
+  Synthesis(AudioBuffer &ab, int channels);
 };
 }  // namespace jmp123::decoder
 

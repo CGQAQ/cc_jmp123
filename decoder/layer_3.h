@@ -23,6 +23,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
+#include <thread>
 
 #include "bit_stream.h"
 #include "layer123.h"
@@ -48,9 +49,9 @@ class LayerIII : public LayerI_II_III {
     int block_type;
     int mixed_block_flag;
 
-    int* table_select;
+    std::array<int, 3> table_select;
 
-    int* subblock_gain;
+    std::array<int, 3> subblock_gain;
     int  region0_count;
     int  region1_count;
     int  preflag;
@@ -62,19 +63,9 @@ class LayerIII : public LayerI_II_III {
     int region1Start;
     int region2Start;
     int part2_length;  // 增益因子(scale-factor)比特数
-
-    ChannelInformation() {
-      table_select  = new int[3];
-      subblock_gain = new int[3];
-    }
-    ~ChannelInformation() {
-      delete[] table_select;
-      delete[] subblock_gain;
-    }
   };
 
- public:
-  int granules_;
+
 
  private:
   int       channels_;
@@ -88,8 +79,14 @@ class LayerIII : public LayerI_II_III {
   std::vector<int>                             sfb_index_long_;
   std::vector<int>                             sfb_index_short_;
   bool                                         is_mpeg_1_;
+ public:
+  int const granules_;
+
+ private:
   SynthesisConcurrent                          filter_ch_0_;
   SynthesisConcurrent                          filter_ch_1;
+
+  std::thread t1, t2;
 
  public:
   [[maybe_unused]] LayerIII(Header h, std::unique_ptr<IAudio> audio);

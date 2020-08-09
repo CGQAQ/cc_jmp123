@@ -19,16 +19,17 @@
 
 #include "synthesis.h"
 namespace jmp123::decoder {
-Synthesis::Synthesis(std::unique_ptr<AudioBuffer> ab, int channels)
-    : audio_buffer_(std::move(ab)), kStep_(channels == 2 ? 4 : 2) {
-  fifo_index_ = std::make_unique<int[]>(channels);
-}
+Synthesis::Synthesis(AudioBuffer& ab, int channels)
+    : audio_buffer_(ab),
+      kStep_(channels == 2 ? 4 : 2),
+      fifo_index_(channels) ,
+      fifo_buf_(channels){}
 int  Synthesis::GetMaxPCM() const { return max_pcm_; }
 void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
-  auto         fifo    = fifo_buf_[ch];
-  auto &       pcm_buf = audio_buffer_->pcm_buf_;
+  auto&        fifo    = fifo_buf_[ch];
+  auto&        pcm_buf = audio_buffer_.pcm_buf_;
   float        sum     = 0;
-  unsigned int i = 0, pcm_i = 0, off = audio_buffer_->off_[ch];
+  unsigned int i = 0, pcm_i = 0, off = audio_buffer_.off_[ch];
 
   // 1. shift
   fifo_index_[ch] = (fifo_index_[ch] - 64) & 0x3ff;
@@ -453,9 +454,10 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       }
       break;
   }
-  audio_buffer_->off_[ch] = off;
+  audio_buffer_.off_[ch] = off;
 }
-void Synthesis::Dct32To64(std::array<float, 32>   src, std::array<float, 1024> dest, int off) {
+void Synthesis::Dct32To64(std::array<float, 32>   src,
+                          std::array<float, 1024> dest, int off) {
   auto  in  = src;
   auto  out = dest;
   int   i   = off;
