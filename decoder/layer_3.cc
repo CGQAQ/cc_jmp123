@@ -33,10 +33,10 @@ namespace jmp123::decoder {
 [[maybe_unused]] LayerIII::LayerIII(Header h, std::unique_ptr<IAudio> audio)
     : LayerI_II_III(h, std::move(audio)),
       header_(std::move(h)),
-      is_mpeg_1_(header_.GetVersion()
-                 == static_cast<int>(static_cast<int>(MPEGVersion::kMPEG1))),
       channels_(h.GetChannelCount()),
       bs_si_(BitStream(0, 0)),
+      is_mpeg_1_(header_.GetVersion()
+                 == static_cast<int>(static_cast<int>(MPEGVersion::kMPEG1))),
       granules_(is_mpeg_1_ ? 2: 1),
       filter_ch_0_(SynthesisConcurrent(*this, 0)),
       filter_ch_1((SynthesisConcurrent(*this, 1))) {
@@ -485,7 +485,7 @@ void LayerIII::huffBits(int gr, int ch) {
   } else {
     r1 = ci.region0_count + 1;
     r2 = r1 + ci.region1_count + 1;
-    if (r2 > sfb_index_long_.size() - 1) r2 = sfb_index_long_.size() - 1;
+    if (r2 > static_cast<int>(sfb_index_long_.size() - 1)) r2 = sfb_index_long_.size() - 1;
     ci.region1Start = sfb_index_long_[r1];
     ci.region2Start = sfb_index_long_[r2];
   }

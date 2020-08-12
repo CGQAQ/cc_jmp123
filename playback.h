@@ -46,6 +46,7 @@ class Playback {
     NextHeader();
 
     if (eof) return false;
+    return true;
   }
 
   bool Start(bool verbose) {
@@ -70,7 +71,11 @@ class Playback {
 
     while (!eof) {
       // 1. 解码一帧并输出(播放)
-      off = layer->DecodeFrame(buf, off);
+//      off = layer->DecodeFrame(buf, off);
+
+      auto a = layer->DecodeFrame(buf, off);
+
+      off = 0;
 
       if (verbose && (++frames & 0x7) == 0) header.PrintProgress();
 
@@ -93,7 +98,7 @@ class Playback {
 
   void NextHeader() {
     int len, chunk = 0;
-    while (!eof && header.SyncFrame(buf.data(), off, maxOff) == false) {
+    while (!eof && !header.SyncFrame(buf.data(), off, maxOff)) {
       // buf内帧同步失败或数据不足一帧，刷新缓冲区buf
       off = header.Offset();
       len = maxOff - off;

@@ -68,8 +68,8 @@ class LayerIII : public LayerI_II_III {
 
 
  private:
-  int       channels_;
   Header    header_;
+  int       channels_;
   BitStream bs_si_;
   // TODO: implement BitStreamMainData.java first
   std::unique_ptr<BitStreamMainData>           main_data_stream_;
