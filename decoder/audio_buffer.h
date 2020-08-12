@@ -42,7 +42,7 @@ class AudioBuffer {
    * @param size
    *            音频输出缓冲区长度，单位“字节”。
    */
-  AudioBuffer(std::unique_ptr<IAudio>& audio, int size);
+  AudioBuffer(std::unique_ptr<IAudio> audio, int size);
 
   /**
    * 音频输出缓冲区的内容刷向音频输出对象并将缓冲区偏移量复位。当缓冲区填满时才向音频输出对象写入，但调用者并不需要知道当前缓冲区是否已经填满。

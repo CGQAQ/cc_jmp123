@@ -349,7 +349,7 @@ int LayerIII::GetSideInfo(std::vector<uint8_t> const& b, int off) {
   return off + header_.GetSideInfoSize();
 }
 void LayerIII::GetScaleFactors_2(int gr, int ch) {
-  uint               i, band, slen, num, n = 0, scf = 0;
+  uint8_t               i, band, slen, num, n = 0, scf = 0;
   bool               i_stereo = header_.IsIntensityStereo();
   ChannelInformation ci       = channel_info_[gr][ch];
   auto               l        = scalefacLong[ch];

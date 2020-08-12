@@ -19,7 +19,7 @@
 
 #include "audio_buffer.h"
 namespace jmp123::decoder {
-AudioBuffer::AudioBuffer(std::unique_ptr<IAudio> & audio, int size)
+AudioBuffer::AudioBuffer(std::unique_ptr<IAudio> audio, int size)
     : audio_(std::move(audio)), size_(size) {
   pcm_buf_ = std::make_unique<uint8_t[]>(size);
   off_     = std::array<int, 2>{0,2};
