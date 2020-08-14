@@ -90,6 +90,7 @@ class LayerIII : public LayerI_II_III {
 
  public:
   [[maybe_unused]] LayerIII(Header h, std::unique_ptr<IAudio> audio);
+  ~LayerIII();
 
   // 1.
   //>>>>SIDE INFORMATION (part1)=============================================
@@ -235,7 +236,7 @@ class LayerIII : public LayerI_II_III {
    * 关闭帧的解码。如果用多线程并发解码，这些并发的解码线程将被终止。
    * @see Layer123#close()
    */
-  void Close();
+  void Close() override;
   /**
    * 滤波线程完成一次的滤波任务后向调用者提交结果。滤波线程完成一次滤波任务后调用该方法。
    */

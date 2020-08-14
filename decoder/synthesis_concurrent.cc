@@ -30,9 +30,10 @@ SynthesisConcurrent::SynthesisConcurrent(LayerIII& owner, int ch)
 }
 std::vector<std::array<float, 32 * 18>> SynthesisConcurrent::StartSynthesis() {
   // 1. 交换缓冲区
-  auto p  = pre_xr_;
-  pre_xr_ = cur_xr_;
-  cur_xr_ = p;
+  //  auto p  = pre_xr_;
+  //  pre_xr_ = cur_xr_;
+  //  cur_xr_ = p;
+  swap(pre_xr_, cur_xr_);
 
   // 2. 通知run()干活
   pause_ = false;

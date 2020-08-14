@@ -26,7 +26,7 @@ namespace jmp123::decoder {
 class AudioBuffer {
  public:
   std::unique_ptr<uint8_t[]> pcm_buf_;
-  std::array<int, 2>         off_;
+  std::array<int, 2>         off_{};
 
  private:
   std::unique_ptr<IAudio> audio_;
@@ -48,7 +48,6 @@ class AudioBuffer {
    * 音频输出缓冲区的内容刷向音频输出对象并将缓冲区偏移量复位。当缓冲区填满时才向音频输出对象写入，但调用者并不需要知道当前缓冲区是否已经填满。
    * 防止缓冲区溢出， 每解码完一帧应调用此方法一次。
    */
-  void Output();
 
   /**
    * 音频输出缓冲区的全部内容刷向音频输出对象并将缓冲区偏移量复位。在解码完一个文件的最后一帧后调用此方法，将缓冲区剩余内容写向音频输出对象。

@@ -91,6 +91,9 @@ class IAudio {
    * @see Header#getDuration()
    */
   virtual void refreshMessage(std::string msg) = 0;
+
+
+  virtual ~IAudio() = default;
 };
 }  // namespace jmp123::decoder
 

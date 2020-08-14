@@ -33,11 +33,11 @@ class LayerIII;
 
 class SynthesisConcurrent {
  private:
+  LayerIII& owner_;
   int                                     ch_;
-  std::array<float, 32>                   samples_;
+  std::array<float, 32>                   samples_{};
   std::vector<std::array<float, 32 * 18>> pre_xr_;
   std::vector<std::array<float, 32 * 18>> cur_xr_;
-  LayerIII& owner_;
 
   std::condition_variable notifier_;
   std::atomic_bool        pause_, alive_;
