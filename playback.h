@@ -71,12 +71,8 @@ class Playback {
 
     while (!eof) {
       // 1. 解码一帧并输出(播放)
-//      off = layer->DecodeFrame(buf, off);
-
-      auto a = layer->DecodeFrame(buf, off);
-
-      off = 0;
-
+      off = layer->DecodeFrame(buf, off);
+//      auto a = layer->DecodeFrame(buf, off);
       if (verbose && (++frames & 0x7) == 0) header.PrintProgress();
 
       // 2. 定位到下一帧并解码帧头
@@ -92,6 +88,7 @@ class Playback {
       header.PrintProgress();
       std::cout << std::endl;
     }
+    return true;
   }
 
   //====================================================================

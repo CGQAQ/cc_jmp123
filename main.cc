@@ -8,5 +8,5 @@ using namespace jmp123;
 int main() {
   Playback p2(std::make_unique<output::Output>());
   p2.Open("/home/jason/code/cc/cc_jmp123/test.mp3", "title");
-  p2.Start(true);
+  p2.Start(false);
 }

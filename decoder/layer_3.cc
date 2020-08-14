@@ -1140,7 +1140,7 @@ int LayerIII::DecodeFrame(std::vector<uint8_t> b, int off) {
 
   try {
     std::unique_lock lock{notifier_mutex_};
-    while (semaphore_ >= channels_)  // 等待上一帧channels个声道完成多相合成滤波
+    while (semaphore_ < channels_)  // 等待上一帧channels个声道完成多相合成滤波
       notifier_.wait(lock);
     semaphore_ = 0;  // 信号量置0
   } catch (std::exception& e) {
