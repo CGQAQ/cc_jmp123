@@ -1,13 +1,16 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.18)
 project(jmp123)
 
 set(CMAKE_CXX_STANDARD 20)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W4")
 else ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif ()
+
 
 add_executable(jmp123 main.cc output/output.cc output/output.h playback.cc playback.h)
 target_include_directories(jmp123 PUBLIC .)
@@ -38,13 +41,13 @@ target_sources(
         decoder/bit_stream_main_data.cc decoder/bit_stream_main_data.h
 )
 
-add_subdirectory(third_party/fmt)
 # fmt library
+add_subdirectory(third_party/fmt)
 target_include_directories(jmp123 PUBLIC third_party/fmt/include)
-target_link_libraries(jmp123 fmt::fmt)
+target_link_libraries(jmp123 fmt)
 
-set(RTAUDIO_BUILD_STATIC_LIBS)
-set(RTAUDIO_API_JACK OFF CACHE BOOL "" FORCE)
+# set(RTAUDIO_BUILD_STATIC_LIBS)
+# set(RTAUDIO_API_JACK OFF CACHE BOOL "" FORCE)
 add_subdirectory(third_party/rtaudio)
 target_include_directories(jmp123 PUBLIC third_party/rtaudio)
 target_link_libraries(jmp123 rtaudio)

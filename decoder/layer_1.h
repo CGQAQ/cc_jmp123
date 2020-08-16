@@ -32,9 +32,9 @@ namespace jmp123::decoder {
 class LayerI : public LayerI_II_III {
   Header                                 header_;
   std::unique_ptr<BitStream>             bs_;
-  std::array<std::array<uint8_t, 32>, 2> allocation_;
-  std::array<std::array<uint8_t, 32>, 2> scale_factor_;
-  std::array<std::array<float, 32>, 2>   syin_;
+  std::array<std::array<uint8_t, 32>, 2> allocation_{};
+  std::array<std::array<uint8_t, 32>, 2> scale_factor_{};
+  std::array<std::array<float, 32>, 2>   syin_{};
 
  public:
   LayerI(Header h, std::unique_ptr<IAudio> audio)
