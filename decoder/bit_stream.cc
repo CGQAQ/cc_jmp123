@@ -28,7 +28,7 @@ jmp123::decoder::BitStream::BitStream(int len, int extr)
       max_off_(len),
       bit_reservoir_(std::vector<uint8_t>(len + extr)) {}
 
-int jmp123::decoder::BitStream::Append(std::vector<uint8_t> b, int off, int len) {
+int jmp123::decoder::BitStream::Append(std::vector<uint8_t>const& b, int off, int len) {
   if (len + end_pos_ > max_off_) {
     // std::copy(bit_reservoir_ + byte_pos_, bit_reservoir_)
     //    std::memcpy(bit_reservoir_.get(), &bit_reservoir_[byte_pos_],
@@ -43,7 +43,7 @@ int jmp123::decoder::BitStream::Append(std::vector<uint8_t> b, int off, int len)
   return len;
 }
 
-void jmp123::decoder::BitStream::Feed(std::vector<uint8_t> other, int off) {
+void jmp123::decoder::BitStream::Feed(std::vector<uint8_t> const &other, int off) {
   bit_reservoir_ = other;
   byte_pos_      = off;
   bit_pos_       = 0;

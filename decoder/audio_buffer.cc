@@ -21,20 +21,20 @@
 namespace jmp123::decoder {
 AudioBuffer::AudioBuffer(std::unique_ptr<IAudio> audio, int size)
     : audio_(std::move(audio)), size_(size) {
-  pcm_buf_ = std::make_unique<uint8_t[]>(size);
-  off_     = std::array<int, 2>{0,2};
+  pcm_buf_ = std::vector<uint8_t>(size);
+  off_     = std::array<int, 2>{};
 }
 }  // namespace jmp123::decoder
 void jmp123::decoder::AudioBuffer::Output() {
-  if (off_[0] == size_) {
-    if (audio_ != nullptr) audio_->Write(pcm_buf_.get(), size_);
+  if (off_[0] >= size_) {
+    if (audio_ != nullptr) audio_->Write(pcm_buf_);
     off_[0] = 0;
     off_[1] = 2;
   }
 }
 void jmp123::decoder::AudioBuffer::Flush() {
   if (audio_ != nullptr) {
-    audio_->Write(pcm_buf_.get(), off_[0]);
+    audio_->Write(pcm_buf_);
     audio_->Drain();
   }
   off_[0] = 0;

@@ -29,7 +29,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
   auto&        fifo    = fifo_buf_[ch];
   auto&        pcm_buf = audio_buffer_.pcm_buf_;
   float        sum     = 0;
-  unsigned int i = 0, pcm_i = 0, off = audio_buffer_.off_[ch];
+  int pcm_i = 0, off = audio_buffer_.off_[ch];
 
   // 1. shift
   fifo_index_[ch] = (fifo_index_[ch] - 64) & 0x3ff;
@@ -39,7 +39,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
   switch (fifo_index_[ch]) {
     case 0:
       for (int i = 0; i < 32; ++i) {
-        auto win = kDewin[i];
+        auto const& win = kDewin[i];
         sum      = win[0] * fifo[i];
         sum += win[1] * fifo[i + 96];
         sum += win[2] * fifo[i + 128];
@@ -65,8 +65,8 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 64:
       // u_vector={64,160,192,288,320,416,448,544,576,672,704,800,832,928,960,32}
-      for (i = 0; i < 32; i++, off += kStep_) {
-        auto win = kDewin[i];
+      for (int i = 0; i < 32; i++, off += kStep_) {
+        auto const& win = kDewin[i];
         sum      = win[0] * fifo[i + 64];
         sum += win[1] * fifo[i + 160];
         sum += win[2] * fifo[i + 192];
@@ -91,8 +91,8 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 128:
       // u_vector={128,224,256,352,384,480,512,608,640,736,768,864,896,992,0,96}
-      for (i = 0; i < 32; i++, off += kStep_) {
-        auto win = kDewin[i];
+      for (int i = 0; i < 32; i++, off += kStep_) {
+        auto const& win = kDewin[i];
         sum      = win[0] * fifo[i + 128];
         sum += win[1] * fifo[i + 224];
         sum += win[2] * fifo[i + 256];
@@ -117,8 +117,8 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 192:
       // u_vector={192,288,320,416,448,544,576,672,704,800,832,928,960,32,64,160}
-      for (i = 0; i < 32; i++, off += kStep_) {
-        auto win = kDewin[i];
+      for (int i = 0; i < 32; i++, off += kStep_) {
+        auto const& win = kDewin[i];
         sum      = win[0] * fifo[i + 192];
         sum += win[1] * fifo[i + 288];
         sum += win[2] * fifo[i + 320];
@@ -143,8 +143,8 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 256:
       // u_vector={256,352,384,480,512,608,640,736,768,864,896,992,0,96,128,224}
-      for (i = 0; i < 32; i++, off += kStep_) {
-        auto win = kDewin[i];
+      for (int i = 0; i < 32; i++, off += kStep_) {
+        auto const& win = kDewin[i];
         sum      = win[0] * fifo[i + 256];
         sum += win[1] * fifo[i + 352];
         sum += win[2] * fifo[i + 384];
@@ -169,8 +169,8 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 320:
       // u_vector={320,416,448,544,576,672,704,800,832,928,960,32,64,160,192,288}
-      for (i = 0; i < 32; i++, off += kStep_) {
-        auto win = kDewin[i];
+      for (int i = 0; i < 32; i++, off += kStep_) {
+        auto const& win = kDewin[i];
         sum      = win[0] * fifo[i + 320];
         sum += win[1] * fifo[i + 416];
         sum += win[2] * fifo[i + 448];
@@ -195,8 +195,8 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 384:
       // u_vector={384,480,512,608,640,736,768,864,896,992,0,96,128,224,256,352}
-      for (i = 0; i < 32; i++, off += kStep_) {
-        auto win = kDewin[i];
+      for (int i = 0; i < 32; i++, off += kStep_) {
+        auto const& win = kDewin[i];
         sum      = win[0] * fifo[i + 384];
         sum += win[1] * fifo[i + 480];
         sum += win[2] * fifo[i + 512];
@@ -214,6 +214,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
         sum += win[14] * fifo[i + 256];
         sum += win[15] * fifo[i + 352];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
+
         pcm_buf[off] = pcm_i;
         pcm_buf[off + 1] = pcm_i >> 8;
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
@@ -221,7 +222,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 448:
       // u_vector={448,544,576,672,704,800,832,928,960,32,64,160,192,288,320,416}
-      for (i = 0; i < 32; i++, off += kStep_) {
+      for (int i = 0; i < 32; i++, off += kStep_) {
         auto win = kDewin[i];
         sum      = win[0] * fifo[i + 448];
         sum += win[1] * fifo[i + 544];
@@ -247,7 +248,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 512:
       // u_vector={512,608,640,736,768,864,896,992,0,96,128,224,256,352,384,480}
-      for (i = 0; i < 32; i++, off += kStep_) {
+      for (int i = 0; i < 32; i++, off += kStep_) {
         auto win = kDewin[i];
         sum      = win[0] * fifo[i + 512];
         sum += win[1] * fifo[i + 608];
@@ -273,7 +274,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 576:
       // u_vector={576,672,704,800,832,928,960,32,64,160,192,288,320,416,448,544}
-      for (i = 0; i < 32; i++, off += kStep_) {
+      for (int i = 0; i < 32; i++, off += kStep_) {
         auto win = kDewin[i];
         sum      = win[0] * fifo[i + 576];
         sum += win[1] * fifo[i + 672];
@@ -299,8 +300,8 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 640:
       // u_vector={640,736,768,864,896,992,0,96,128,224,256,352,384,480,512,608}
-      for (i = 0; i < 32; i++, off += kStep_) {
-        auto win = kDewin[i];
+      for (int i = 0; i < 32; i++, off += kStep_) {
+        auto const& win = kDewin[i];
         sum      = win[0] * fifo[i + 640];
         sum += win[1] * fifo[i + 736];
         sum += win[2] * fifo[i + 768];
@@ -325,8 +326,8 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 704:
       // u_vector={704,800,832,928,960,32,64,160,192,288,320,416,448,544,576,672}
-      for (i = 0; i < 32; i++, off += kStep_) {
-        auto win = kDewin[i];
+      for (int i = 0; i < 32; i++, off += kStep_) {
+        auto const& win = kDewin[i];
         sum      = win[0] * fifo[i + 704];
         sum += win[1] * fifo[i + 800];
         sum += win[2] * fifo[i + 832];
@@ -351,8 +352,8 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 768:
       // u_vector={768,864,896,992,0,96,128,224,256,352,384,480,512,608,640,736}
-      for (i = 0; i < 32; i++, off += kStep_) {
-        auto win = kDewin[i];
+      for (int i = 0; i < 32; i++, off += kStep_) {
+        auto const& win = kDewin[i];
         sum      = win[0] * fifo[i + 768];
         sum += win[1] * fifo[i + 864];
         sum += win[2] * fifo[i + 896];
@@ -377,8 +378,8 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 832:
       // u_vector={832,928,960,32,64,160,192,288,320,416,448,544,576,672,704,800}
-      for (i = 0; i < 32; i++, off += kStep_) {
-        auto win = kDewin[i];
+      for (int i = 0; i < 32; i++, off += kStep_) {
+        auto const& win = kDewin[i];
         sum      = win[0] * fifo[i + 832];
         sum += win[1] * fifo[i + 928];
         sum += win[2] * fifo[i + 960];
@@ -403,8 +404,8 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 896:
       // u_vector={896,992,0,96,128,224,256,352,384,480,512,608,640,736,768,864}
-      for (i = 0; i < 32; i++, off += kStep_) {
-        auto win = kDewin[i];
+      for (int i = 0; i < 32; i++, off += kStep_) {
+        auto const& win = kDewin[i];
         sum      = win[0] * fifo[i + 896];
         sum += win[1] * fifo[i + 992];
         sum += win[2] * fifo[i];
@@ -429,8 +430,8 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> samples, int ch) {
       break;
     case 960:
       // u_vector={960,32,64,160,192,288,320,416,448,544,576,672,704,800,832,928}
-      for (i = 0; i < 32; i++, off += kStep_) {
-        auto win = kDewin[i];
+      for (int i = 0; i < 32; i++, off += kStep_) {
+        auto const& win = kDewin[i];
         sum      = win[0] * fifo[i + 960];
         sum += win[1] * fifo[i + 32];
         sum += win[2] * fifo[i + 64];

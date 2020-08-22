@@ -28,7 +28,7 @@ SynthesisConcurrent::SynthesisConcurrent(LayerIII& owner, int ch)
   pre_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules_);
   cur_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules_);
 }
-std::vector<std::array<float, 32 * 18>> SynthesisConcurrent::StartSynthesis() {
+std::vector<std::array<float, 32 * 18>> const& SynthesisConcurrent::StartSynthesis() {
   // 1. 交换缓冲区
   //  auto p  = pre_xr_;
   //  pre_xr_ = cur_xr_;
@@ -36,13 +36,14 @@ std::vector<std::array<float, 32 * 18>> SynthesisConcurrent::StartSynthesis() {
   swap(pre_xr_, cur_xr_);
 
   // 2. 通知run()干活
+  std::lock_guard lock{ this->pause_mutex_ };
   pause_ = false;
   notifier_.notify_one();
 
   // 3. 返回"空闲的"缓冲区，该缓冲区内的数据已被run()方法使用完毕
   return pre_xr_;
 }
-std::vector<std::array<float, 32 * 18>> SynthesisConcurrent::GetBuffer() { return pre_xr_; }
+std::vector<std::array<float, 32 * 18>>  const& SynthesisConcurrent::GetBuffer() { return pre_xr_; }
 void SynthesisConcurrent::Shutdown() {
   alive_ = false;
   pause_ = false;
@@ -57,21 +58,24 @@ void SynthesisConcurrent::operator()() {
     std::unique_lock<std::mutex> lock(pause_mutex_);
     while (pause_) notifier_.wait(lock);
     pause_ = true;
+    lock.unlock();
 
     for (gr = 0; gr < granules; ++gr) {
-      auto xr = cur_xr_[gr];
-      for (ss = 0, sub = 0; sub < 32; ++sub, i += 18) {
-        samples_[sub] = xr[i];
-      }
-      filter.SynthesisSubBand(samples_, ch_);
+      auto& xr = cur_xr_[gr];
+      for (ss = 0; ss < 18; ss += 2) {
+          for (i = ss, sub = 0; sub < 32; sub++, i += 18) {
+              samples_[sub] = xr[i];
+          }
+          filter.SynthesisSubBand(samples_, ch_);
 
-      for (i = ss + 1, sub = 0; sub < 32; sub += 2, i += 36) {
-        samples_[sub] = xr[i];
+          for (i = ss + 1, sub = 0; sub < 32; sub += 2, i += 36) {
+              samples_[sub] = xr[i];
 
-        // 多相频率倒置(INVERSE QUANTIZE SAMPLES)
-        samples_[sub + 1] = -xr[i + 18];
+              // 多相频率倒置(INVERSE QUANTIZE SAMPLES)
+              samples_[sub + 1] = -xr[i + 18];
+          }
+          filter.SynthesisSubBand(samples_, ch_);
       }
-      filter.SynthesisSubBand(samples_, ch_);
     }
     // 3. 提交结果
     owner_.SubmitSynthesis();

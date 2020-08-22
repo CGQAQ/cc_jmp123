@@ -38,9 +38,9 @@ class BitStream {
  public:
   BitStream(int len, int extr);
 
-  int Append(std::vector<uint8_t> b, int off, int len);
+  int Append(std::vector<uint8_t>const& b, int off, int len);
 
-  void Feed(std::vector<uint8_t> other , int off);
+  void Feed(std::vector<uint8_t> const &other , int off);
 
   int Get_1_Bit();
 

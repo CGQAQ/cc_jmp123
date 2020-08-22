@@ -24,7 +24,7 @@ LayerI_II_III::LayerI_II_III(const Header &h, std::unique_ptr<IAudio> audio)
     : audio_buffer_(std::move(audio), 4 * h.GetPcmSize()),
       filter_(audio_buffer_, h.GetChannelCount()) {}
 
-void LayerI_II_III::OutputAudio() { /*audio_buffer_.Output();*/ }
+void LayerI_II_III::OutputAudio() { audio_buffer_.Output(); }
 void LayerI_II_III::Close() { audio_buffer_.Flush(); }
 
 }  // namespace jmp123::decoder

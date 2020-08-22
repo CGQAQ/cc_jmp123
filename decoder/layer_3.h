@@ -154,7 +154,7 @@ class LayerIII : public LayerI_II_III {
    * @param ch 当前声道。
    * @param xrch 保存逆量化输出的576个值。
    */
-  void Requantizer(int gr, int ch, std::array<float, 32 * 18> xrch);
+  void Requantizer(int gr, int ch, std::array<float, 32 * 18>& xrch);
   //<<<<REQUANTIZATION & REORDER=============================================
 
   // 5.
@@ -182,16 +182,16 @@ class LayerIII : public LayerI_II_III {
  private:
   // 6.
   //>>>>ANTIALIAS============================================================
-  void antialias(int gr, int ch, std::array<float, 32 * 18> const& xrch);
+  void antialias(int gr, int ch, std::array<float, 32 * 18> & xrch);
   //<<<<ANTIALIAS============================================================
 
  private:
   // 7.
   //>>>>HYBRID(synthesize via iMDCT)=========================================
-  void imdct12(std::array<float, 32 * 18> const& xrch,
+  void imdct12(std::array<float, 32 * 18> & xrch,
                std::array<float, 32 * 18>& pre, int off);
 
-  void imdct36(std::array<float, 32 * 18> const& xrch,
+  void imdct36(std::array<float, 32 * 18> & xrch,
                std::array<float, 32 * 18>& preBlck, int off, int block_type);
 
   std::array<float, 32 * 18> preBlckCh0;  // [32*18],左声道FIFO队列
