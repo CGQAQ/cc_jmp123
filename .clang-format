@@ -1,9 +1,7 @@
 BasedOnStyle: Google
 AlignConsecutiveAssignments: true
-AlignConsecutiveBitFields: true
 AlignConsecutiveDeclarations: true
 AlignTrailingComments: true
 AlignConsecutiveMacros: true
 AlignEscapedNewlines: Right
 BreakBeforeBinaryOperators: NonAssignment
-AlignOperands: AlignAfterOperator

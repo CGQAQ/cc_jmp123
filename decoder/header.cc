@@ -59,6 +59,7 @@ void Header::ParseHeader(int h) {
       frame_size_ /=
           kSamplingRateTable[static_cast<int>(ver_id_)][sampling_frequency_];
       frame_size_ += padding_bit_;
+      break;
     case 3:
       frame_size_ = kBitrateTable[lsf_][2][bitrate_index_] * 144000;
       frame_size_ /=
@@ -96,8 +97,8 @@ int Header::Byte_2_Short(uint8_t *b, int off) {
 }
 bool Header::Available(int h, int curmask) {
   return (h & curmask) == curmask && ((h >> 19) & 3) != 1
-      && ((h >> 17) & 3) != 0 && ((h >> 12) & 15) != 15 && ((h >> 12) & 15) != 0
-      && ((h >> 10) & 3) != 3;
+         && ((h >> 17) & 3) != 0 && ((h >> 12) & 15) != 15
+         && ((h >> 12) & 15) != 0 && ((h >> 10) & 3) != 3;
 }
 int  Header::Offset() const { return idx_; }
 bool Header::SyncFrame(uint8_t *b, int off, int end_pos) {
@@ -490,7 +491,7 @@ void Header::PrintProgress() {
   int   m = static_cast<int>(t / 60);
   float s = t - 60 * m;
   int i = (static_cast<int>(100.0f * frame_counter_ / track_frames_ + 0.5) << 2)
-        / 10;
+          / 10;
   if (progress_.gcount() == 0)
     progress_ << ">----------------------------------------";
   if (i == progress_index_) {
