@@ -49,8 +49,8 @@ void jmp123::decoder::BitStream::Feed(std::vector<uint8_t> const &other, int off
   bit_pos_       = 0;
 }
 
-int jmp123::decoder::BitStream::GetBits_17(int n) {
-  int iret = bit_reservoir_[byte_pos_];
+uint32_t jmp123::decoder::BitStream::GetBits_17(int n) {
+  uint32_t iret = bit_reservoir_[byte_pos_];
   iret <<= 8;
   iret |= bit_reservoir_[byte_pos_ + 1] & 0xff;
   iret <<= 8;
@@ -64,8 +64,8 @@ int jmp123::decoder::BitStream::GetBits_17(int n) {
   return iret;
 }
 
-int jmp123::decoder::BitStream::GetBits_9(int n) {
-  int iret = bit_reservoir_[byte_pos_];
+uint32_t jmp123::decoder::BitStream::GetBits_9(int n) {
+  uint32_t iret = bit_reservoir_[byte_pos_];
   iret <<= 8;
   iret |= bit_reservoir_[byte_pos_ + 1] & 0xff;
   iret <<= bit_pos_;
@@ -82,8 +82,8 @@ void jmp123::decoder::BitStream::SkipBytes(int n) {
   bit_pos_ = 0;
 }
 
-int jmp123::decoder::BitStream::Get_1_Bit() {
-  int bit = bit_reservoir_[byte_pos_] << bit_pos_;
+uint32_t jmp123::decoder::BitStream::Get_1_Bit() {
+  uint32_t bit = bit_reservoir_[byte_pos_] << bit_pos_;
   bit >>= 7;
   bit &= 1;
   bit_pos_++;

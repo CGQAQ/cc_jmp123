@@ -61,7 +61,7 @@ BitStreamMainData::BitStreamMainData(int len, int extra)
   lin_[31] = 13;
 }
 int BitStreamMainData::DecodeHuff(const LayerIII::ChannelInformation& ci,
-                                  std::array<int, 32 * 18 + 4>        hv) {
+                                  std::array<int, 32 * 18 + 4>& hv) {
   unsigned int tmp = 0, lin_bits = 0, max_idx = 0, idx = 0;
   auto&        b = bit_reservoir_;
 
@@ -103,7 +103,7 @@ int BitStreamMainData::DecodeHuff(const LayerIII::ChannelInformation& ci,
   for (i = 0; i < 3; i++) {
     max_idx   = region_[i];
     tmp       = ci.table_select[i];
-    auto htab = htbv_[tmp];
+    auto const &htab = htbv_[tmp];
     lin_bits  = lin_[tmp];
     while (idx < max_idx) {
       if (part3len + num <= 0) {  //检测位流是否有错误

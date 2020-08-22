@@ -53,7 +53,7 @@ class BitStreamMainData : public BitStream {
    *            接收解码得到的576个值。
    * @return 576减去rzone区长度。
    */
-  int DecodeHuff(LayerIII::ChannelInformation const& ci, std::array<int, 32 * 18 + 4> hv);
+  int DecodeHuff(LayerIII::ChannelInformation const& ci, std::array<int, 32 * 18 + 4>& hv);
 };
 
 }  // namespace jmp123::decoder

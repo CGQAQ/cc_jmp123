@@ -45,7 +45,7 @@ class Synthesis {
    */
   std::vector<int> fifo_index_;
 
-  unsigned int max_pcm_;
+  unsigned int max_pcm_{};
 
  public:
   /**

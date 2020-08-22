@@ -42,11 +42,11 @@ class BitStream {
 
   void Feed(std::vector<uint8_t> const &other , int off);
 
-  int Get_1_Bit();
+  [[nodiscard]] uint32_t Get_1_Bit();
 
-  int GetBits_17(int n);
+  [[nodiscard]] uint32_t GetBits_17(int n);
 
-  int GetBits_9(int n);
+  [[nodiscard]] uint32_t GetBits_9(int n);
 
   [[nodiscard]] int GetBytePos() const { return byte_pos_; }
 

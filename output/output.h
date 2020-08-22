@@ -19,7 +19,7 @@ class Output : public jmp123::decoder::IAudio {
  public:
   Output() : dac_() {}
 
-  bool Open(decoder::Header h, std::unique_ptr<std::string> ptr) override;
+  bool Open(decoder::Header const &h, std::unique_ptr<std::string> ptr) override;
   int  Write(std::vector<uint8_t> const& b) override;
   void Start(bool b) override;
   void Drain() override;

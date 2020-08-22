@@ -22,8 +22,8 @@ namespace jmp123::decoder {
 Synthesis::Synthesis(AudioBuffer& ab, int channels)
     : audio_buffer_(ab),
       kStep_(channels == 2 ? 4 : 2),
-      fifo_index_(channels) ,
-      fifo_buf_(channels){}
+      fifo_buf_(channels),
+      fifo_index_(channels){}
 int  Synthesis::GetMaxPCM() const { return max_pcm_; }
 void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
   auto&        fifo    = fifo_buf_[ch];

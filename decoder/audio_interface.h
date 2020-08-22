@@ -38,7 +38,7 @@ class IAudio {
    * @return 打开成功返回true，否则返回false。
    * @see Header
    */
-  virtual bool Open(Header h, std::unique_ptr<std::string>) = 0;
+  virtual bool Open(Header const& h, std::unique_ptr<std::string>) = 0;
 
   /**
    * 将音频数据写入混频器。所请求的源数据是从PCM缓冲区 b

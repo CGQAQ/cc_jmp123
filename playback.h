@@ -29,21 +29,27 @@ class Playback {
   std::unique_ptr<decoder::IAudio> audio;
   float                            currentVolume = 0.0f;
 
+  decoder::LayerI_II_III* layer{};
+
  public:
   Playback(std::unique_ptr<decoder::IAudio> audio)
       : audio(std::move(audio)), header(), buf(BUFLEN) {
     // id3tag = new ID3Tag();
   }
 
+  ~Playback() { delete layer; }
+
   bool Open(std::string name, std::string title) {
     maxOff = 8192;
     off    = 0;
     paused = eof = false;
 
-    instream  = std::ifstream(name);
+    instream  = std::ifstream(name, std::ifstream::binary);
     auto size = std::filesystem::file_size(name);
     header.Initialize(size, 0);
     NextHeader();
+
+    audio->Open(header, nullptr);
 
     if (eof) return false;
     return true;
@@ -51,9 +57,11 @@ class Playback {
 
   bool Start(bool verbose) {
     using namespace decoder;
-    LayerI_II_III* layer  = nullptr;
+    layer  = nullptr;
     int            frames = 0;
     paused                = false;
+
+    audio.get()->Start(true);
 
     switch (header.GetLayer()) {
       case 1:
@@ -100,7 +108,7 @@ class Playback {
       //      System.arraycopy(buf, off, buf, 0, len);
       memmove(buf.data(), buf.data() + off, len);
       instream.read(reinterpret_cast<char *>(buf.data() + len), off);
-      maxOff = len + off;
+      maxOff = len + instream.gcount();
       off    = 0;
       if (maxOff <= len || (chunk += BUFLEN) > 0x10000) eof = true;
     }
