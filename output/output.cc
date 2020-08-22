@@ -38,8 +38,8 @@ static std::condition_variable buffer_condition;
 static std::atomic_bool        start_;
 
 int Output::Write(std::vector<uint8_t> const& b) {
-  std::unique_lock lock(buffer_mutex);
-  buffer_condition.wait(lock);
+  /*std::unique_lock lock(buffer_mutex);
+  buffer_condition.wait(lock);*/
 
   buffer_ = std::vector<float>(b.size());
   std::copy(b.begin(), b.end(), buffer_.begin());

@@ -79,7 +79,7 @@ void Header::ParseHeader(int h) {
     main_data_size_ -= 2;  // CRC
   }
 }
-int Header::Byte_2_Int(uint8_t *b, int off) {
+int Header::Byte_2_Int(uint8_t const *b, int off) {
   int int32 = b[off++] & 0xff;
   int32 <<= 8;
   int32 |= b[off++] & 0xff;
@@ -89,7 +89,7 @@ int Header::Byte_2_Int(uint8_t *b, int off) {
   int32 |= b[off] & 0xff;
   return int32;
 }
-int Header::Byte_2_Short(uint8_t *b, int off) {
+int Header::Byte_2_Short(uint8_t const *b, int off) {
   int int16 = b[off++] & 0xff;
   int16 <<= 8;
   int16 |= b[off] & 0xff;
@@ -101,13 +101,13 @@ bool Header::Available(int h, int curmask) {
          && ((h >> 12) & 15) != 0 && ((h >> 10) & 3) != 3;
 }
 int  Header::Offset() const { return idx_; }
-bool Header::SyncFrame(uint8_t *b, int off, int end_pos) {
+bool Header::SyncFrame(std::vector<uint8_t> const & b, int off, int end_pos) {
   int h, mask = 0;
   int skip_bytes = 0;
   idx_           = off;
 
   if (end_pos - idx_ <= 4) return false;
-  h = Byte_2_Int(b, idx_);
+  h = Byte_2_Int(b.data(), idx_);
   idx_ += 4;
 
   while (true) {
@@ -141,11 +141,11 @@ bool Header::SyncFrame(uint8_t *b, int off, int end_pos) {
     mask |= h & 0x60000;
     mask |= h & 0xc00;
 
-    if (Available(Byte_2_Int(b, idx_ + frame_size_ - 4), mask)) {
+    if (Available(Byte_2_Int(b.data(), idx_ + frame_size_ - 4), mask)) {
       if (header_mask_ == 0xffe00000) {
         header_mask_  = mask;
         track_frames_ = track_length_ / frame_size_;
-        ParseVBR(b, idx_, end_pos);
+        ParseVBR(b.data(), idx_, end_pos);
         frame_duration_ = 1152.0f / (GetSamplingRate() << lsf_);
         if (track_frames_ == 0)
           track_frames_ = static_cast<long>((duration_ / frame_duration_));
@@ -197,7 +197,7 @@ int Header::GetElapse() const {
 std::string Header::GetVBRInfo() const {
   return vbr_info_.gcount() == 0 ? "" : vbr_info_.str();
 }
-void Header::ParseVBR(uint8_t *b, int off, int len) {
+void Header::ParseVBR(uint8_t const* b, int off, int len) {
   int const max_off = off + frame_size_ - 4;
   if (max_off >= len) {
     return;
@@ -240,7 +240,7 @@ void Header::ParseVBR(uint8_t *b, int off, int len) {
     return;
   }
   // Encoder Version: 9-byte
-  auto encoder = std::string(reinterpret_cast<char *>(b + off), 9);
+  auto encoder = std::string(reinterpret_cast<char const*>(b + off), 9);
   //    String encoder = new String(b, off, 9);
   off += 9;
   vbr_info_ << "\n      encoder: ";
@@ -385,7 +385,7 @@ void Header::ParseVBR(uint8_t *b, int off, int len) {
 
   // CRC-16 of Info Tag: 2-byte
 }
-int Header::VBRIHeader(uint8_t *b, int off, int len) {
+int Header::VBRIHeader(uint8_t const *b, int off, int len) {
   vbr_info_ << "   vbr header: vbri";
 
   int vbri_quality = Byte_2_Short(b, off + 8);
@@ -410,9 +410,9 @@ int Header::VBRIHeader(uint8_t *b, int off, int len) {
   off += 26;
   return off;
 }
-int Header::XingInfoHeader(uint8_t *b, int off, int len) {
+int Header::XingInfoHeader(uint8_t const *b, int off, int len) {
   vbr_info_ << "   vbr header: ";
-  vbr_info_ << std::string(reinterpret_cast<char *>(b + off), 4);
+  vbr_info_ << std::string(reinterpret_cast<char const*>(b + off), 4);
 
   track_length_ -= frame_size_;
   int xing_flags = Byte_2_Int(b, off + 4);

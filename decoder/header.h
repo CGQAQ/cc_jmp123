@@ -75,9 +75,9 @@ class Header {
 
   void ParseHeader(int h);
 
-  [[nodiscard]] int Byte_2_Int(uint8_t b[], int off);
+  [[nodiscard]] int Byte_2_Int(uint8_t const *b, int off);
 
-  [[nodiscard]] int Byte_2_Short(uint8_t b[], int off);
+  [[nodiscard]] int Byte_2_Short(uint8_t const *b, int off);
 
   bool Available(int h, int curmask);
 
@@ -88,7 +88,7 @@ class Header {
 
  public:
   [[nodiscard]] int         Offset() const;
-  bool                      SyncFrame(uint8_t* b, int off, int end_pos);
+  bool                      SyncFrame(std::vector<uint8_t> const & b, int off, int end_pos);
   [[nodiscard]] bool        IsMS() const;
   [[nodiscard]] bool        IsIntensityStereo() const;
   [[nodiscard]] int         GetBitrate() const;
@@ -113,11 +113,11 @@ class Header {
   [[nodiscard]] std::string GetVBRInfo() const;
 
  private:
-  void ParseVBR(uint8_t b[], int off, int len);
+  void ParseVBR(uint8_t const *b, int off, int len);
 
-  int VBRIHeader(uint8_t b[], int off, int len);
+  int VBRIHeader(uint8_t const *b, int off, int len);
 
-  int XingInfoHeader(uint8_t b[], int off, int len);
+  int XingInfoHeader(uint8_t const *b, int off, int len);
 
  public:
   void PrintHeaderInfo();

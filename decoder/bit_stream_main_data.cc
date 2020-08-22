@@ -21,7 +21,6 @@
 namespace jmp123::decoder {
 BitStreamMainData::BitStreamMainData(int len, int extra)
     : BitStream(len, extra) {
-  htbv_     = new int const*[32];
   htbv_[0]  = htbv0.data();  // hlen=0
   htbv_[1]  = htbv1.data();
   htbv_[2]  = htbv2.data();

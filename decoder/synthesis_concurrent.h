@@ -56,7 +56,7 @@ class SynthesisConcurrent {
    * @return
    * 一个空闲的缓冲区，该缓冲区用于使用SynthesisConcurrent线程的对象在逆量化、抗锯齿和IMDCT时暂存数据。
    */
-  std::vector<std::array<float, 32 * 18>> const&  StartSynthesis();
+  std::vector<std::array<float, 32 * 18>>*  StartSynthesis();
 
   /**
    * 获取一个空闲的缓冲区。
@@ -64,7 +64,7 @@ class SynthesisConcurrent {
    * @return
    * 一个空闲的缓冲区，该缓冲区用于使用SynthesisConcurrent的对象在逆量化、抗锯齿和IMDCT时暂存数据。
    */
-  std::vector<std::array<float, 32 * 18>>  const&  GetBuffer();
+  std::vector<std::array<float, 32 * 18>>* GetBuffer();
 
   /**
    * 关闭SynthesisConcurrent线程。

@@ -92,18 +92,15 @@ class Playback {
   //====================================================================
 
   void NextHeader() {
-    int len, chunk = 0;
-    while (!eof && !header.SyncFrame(buf.data(), off, maxOff)) {
+    int len = 0, chunk = 0;
+    while (!eof && !header.SyncFrame(buf, off, maxOff)) {
       // buf内帧同步失败或数据不足一帧，刷新缓冲区buf
       off = header.Offset();
       len = maxOff - off;
       //      System.arraycopy(buf, off, buf, 0, len);
       memmove(buf.data(), buf.data() + off, len);
-      off = len;
-      len = maxOff - off;
-
-      instream.read(reinterpret_cast<char *>(buf.data() + off), len);
-
+      instream.read(reinterpret_cast<char *>(buf.data() + len), off);
+      maxOff = len + off;
       off    = 0;
       if (maxOff <= len || (chunk += BUFLEN) > 0x10000) eof = true;
     }

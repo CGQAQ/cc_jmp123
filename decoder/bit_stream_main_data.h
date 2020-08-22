@@ -29,7 +29,7 @@ namespace jmp123::decoder {
 class BitStreamMainData : public BitStream {
  private:
   std::array<int, 3>  region_{};
-  int const**         htbv_;
+  std::array<int const*, 32> htbv_{};
   std::array<int, 32> lin_{};
 
  public:

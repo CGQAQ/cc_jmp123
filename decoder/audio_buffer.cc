@@ -22,7 +22,7 @@ namespace jmp123::decoder {
 AudioBuffer::AudioBuffer(std::unique_ptr<IAudio> audio, int size)
     : audio_(std::move(audio)), size_(size) {
   pcm_buf_ = std::vector<uint8_t>(size);
-  off_     = std::array<int, 2>{};
+  off_     = std::array<int, 2>{0, 2};
 }
 }  // namespace jmp123::decoder
 void jmp123::decoder::AudioBuffer::Output() {

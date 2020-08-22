@@ -625,7 +625,7 @@ namespace jmp123::decoder {
 		for (; hvIdx < 576; hvIdx++) xrch[hvIdx] = 0;
 	}
 	void LayerIII::ms_stereo(int gr) {
-		auto xr0 = xrch0[gr], xr1 = xrch1[gr];
+		auto &xr0 = (*xrch0)[gr], &xr1 = (*xrch1)[gr];
 		int  rzero_xr =
 			(rzeroIndex[0] > rzeroIndex[1]) ? rzeroIndex[0] : rzeroIndex[1];
 		int   xri;
@@ -642,9 +642,9 @@ namespace jmp123::decoder {
 	void LayerIII::is_lines_1(int pos, int idx0, int width, int step, int gr) {
 		float xr0;
 		for (int w = width; w > 0; w--) {
-			xr0 = xrch0[gr][idx0];
-			xrch0[gr][idx0] = xr0 * is_coef[pos];
-			xrch1[gr][idx0] = xr0 * is_coef[6 - pos];
+			xr0 = (*xrch0)[gr][idx0];
+			(*xrch0)[gr][idx0] = xr0 * is_coef[pos];
+			(*xrch1)[gr][idx0] = xr0 * is_coef[6 - pos];
 			idx0 += step;
 		}
 	}
@@ -652,15 +652,15 @@ namespace jmp123::decoder {
 		int gr) {
 		float xr0;
 		for (int w = width; w > 0; w--) {
-			xr0 = xrch0[gr][idx0];
+			xr0 = (*xrch0)[gr][idx0];
 			if (pos == 0)
-				xrch1[gr][idx0] = xr0;
+				(*xrch1)[gr][idx0] = xr0;
 			else {
 				if ((pos & 1) == 0)
-					xrch1[gr][idx0] = xr0 * lsf_is_coef[tab2][(pos - 1) >> 1];
+					(*xrch1)[gr][idx0] = xr0 * lsf_is_coef[tab2][(pos - 1) >> 1];
 				else {
-					xrch0[gr][idx0] = xr0 * lsf_is_coef[tab2][(pos - 1) >> 1];
-					xrch1[gr][idx0] = xr0;
+					(*xrch0)[gr][idx0] = xr0 * lsf_is_coef[tab2][(pos - 1) >> 1];
+					(*xrch1)[gr][idx0] = xr0;
 				}
 			}
 			idx0 += step;
@@ -1105,7 +1105,7 @@ namespace jmp123::decoder {
 		/*
 		 * part1 : side information
 		 */
-		int gr, i = GetSideInfo(b, off);
+		int i = GetSideInfo(b, off);
 		if (i < 0) return off + header_.GetFrameSize() - 4;  // 跳过这一帧
 		off = i;
 
@@ -1131,13 +1131,13 @@ namespace jmp123::decoder {
 		off += maindataSize;
 		// main_data_stream_->mark();//----debug
 
-		for (gr = 0; gr < granules_; gr++) {
+		for (int gr = 0; gr < granules_; gr++) {
 			if (is_mpeg_1_)
 				GetScaleFactors_1(gr, 0);
 			else
 				GetScaleFactors_2(gr, 0);
 			huffBits(gr, 0);
-			Requantizer(gr, 0, xrch0[gr]);
+			Requantizer(gr, 0, (*xrch0)[gr]);
 
 			if (channels_ == 2) {
 				if (is_mpeg_1_)
@@ -1145,18 +1145,18 @@ namespace jmp123::decoder {
 				else
 					GetScaleFactors_2(gr, 1);
 				huffBits(gr, 1);
-				Requantizer(gr, 1, xrch1[gr]);
+				Requantizer(gr, 1, (*xrch1)[gr]);
 
 				if (header_.IsMS()) ms_stereo(gr);
 				if (header_.IsIntensityStereo()) intensity_stereo(gr);
 			}
 
-			antialias(gr, 0, xrch0[gr]);
-			hybrid(gr, 0, xrch0[gr], preBlckCh0);
+			antialias(gr, 0, (*xrch0)[gr]);
+			hybrid(gr, 0, (*xrch0)[gr], preBlckCh0);
 
 			if (channels_ == 2) {
-				antialias(gr, 1, xrch1[gr]);
-				hybrid(gr, 1, xrch1[gr], preBlckCh1);
+				antialias(gr, 1, (*xrch1)[gr]);
+				hybrid(gr, 1, (*xrch1)[gr], preBlckCh1);
 			}
 		}
 		// int part2_3_bytes = main_data_stream_->getMark();//----debug

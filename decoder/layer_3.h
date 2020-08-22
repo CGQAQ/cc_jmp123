@@ -128,8 +128,8 @@ class LayerIII : public LayerI_II_III {
  private:
   // 4.
   //>>>>REQUANTIZATION & REORDER=============================================
-  std::vector<std::array<float, 32 * 18>> xrch0;       // [maxGr][32*18]
-  std::vector<std::array<float, 32 * 18>> xrch1;       // [maxGr][32*18]
+  std::vector<std::array<float, 32 * 18>>* xrch0{};     // [maxGr][32*18]
+  std::vector<std::array<float, 32 * 18>>* xrch1{};      // [maxGr][32*18]
   std::array<float, 256 + 118 + 4>        floatPow2;   // [256 + 118 + 4]
   std::array<float, 8207>                 floatPowIS;  // [8207]
   std::array<int, 22>
