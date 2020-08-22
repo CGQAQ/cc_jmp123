@@ -230,7 +230,7 @@ class LayerIII : public LayerI_II_III {
    * 解码1帧Layer Ⅲ
    */
 
-  int DecodeFrame(std::vector<uint8_t> b, int off) override;
+  int DecodeFrame(std::vector<uint8_t> const &b, int off) override;
 
   /**
    * 关闭帧的解码。如果用多线程并发解码，这些并发的解码线程将被终止。

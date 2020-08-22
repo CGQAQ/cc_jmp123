@@ -32,7 +32,7 @@ float LayerI::Requantization(int ch, int sb, int nb) {
   requ *= kFactor[scale_factor_[ch][sb]];                               // s'
   return requ;
 }
-int LayerI::DecodeFrame(std::vector<uint8_t> b, int off) {
+int LayerI::DecodeFrame(std::vector<uint8_t> const &b, int off) {
   int sb = 0, gr = 0, ch = 0, nb = 0;
   int nch = header_.GetChannelCount();
   int bound =

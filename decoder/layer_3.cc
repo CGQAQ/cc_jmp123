@@ -1076,7 +1076,7 @@ void LayerIII::hybrid(int gr, int ch, std::array<float, 32 * 18>& xrch,
     preb[i] = 0;
   }
 }
-int LayerIII::DecodeFrame(std::vector<uint8_t> b, int off) {
+int LayerIII::DecodeFrame(std::vector<uint8_t> const &b, int off) {
   /*
    * part1 : side information
    */

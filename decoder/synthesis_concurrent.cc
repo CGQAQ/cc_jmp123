@@ -73,9 +73,8 @@ void SynthesisConcurrent::operator()() {
       }
       filter.SynthesisSubBand(samples_, ch_);
     }
+    // 3. 提交结果
+    owner_.SubmitSynthesis();
   }
-
-  // 3. 提交结果
-  owner_.SubmitSynthesis();
 }
 }  // namespace jmp123::decoder

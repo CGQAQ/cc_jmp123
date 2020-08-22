@@ -65,8 +65,6 @@ class Playback {
       case 3:
         layer = new LayerIII(std::move(header), std::move(audio));
         break;
-      default:
-        return false;
     }
 
     while (!eof) {
@@ -104,9 +102,8 @@ class Playback {
       off = len;
       len = maxOff - off;
 
-      auto readed = instream.readsome(reinterpret_cast<char *>(buf.data() + off), len);
+      instream.read(reinterpret_cast<char *>(buf.data() + off), len);
 
-      maxOff = maxOff - len + readed;
       off    = 0;
       if (maxOff <= len || (chunk += BUFLEN) > 0x10000) eof = true;
     }

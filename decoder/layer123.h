@@ -46,7 +46,7 @@ class LayerI_II_III {
    * @return
    * 源数据缓冲区新的偏移量，用于计算解码下一帧数据的开始位置在源数据缓冲区的偏移量。
    */
-  virtual int DecodeFrame(std::vector<uint8_t> b, int off) = 0;
+  virtual int DecodeFrame(std::vector<uint8_t> const &b, int off) = 0;
 
   /**
    * 音频输出。完成一帧多相合成滤波后调用此方法将多相合成滤波输出的PCM数据写入音频输出对象。

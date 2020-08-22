@@ -94,7 +94,7 @@ void LayerII::Stereo(int index, int gr, int sb) {
     syin_[1][s][sb] *= kFactor[scale_factor_[1][sb][gr << 2]];
   }
 }
-int LayerII::DecodeFrame(std::vector<uint8_t> b, int off) {
+int LayerII::DecodeFrame(std::vector<uint8_t> const &b, int off) {
   int main_data_begin = 0, bound = 0, sb = 0, ch = 0;
   int main_data_bytes = header_.GetMainDataSize();
   if (bs_->Append(b, off, main_data_bytes) < main_data_bytes)

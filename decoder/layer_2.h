@@ -48,7 +48,7 @@ class LayerII : public LayerI_II_III {
   void Stereo(int index, int gr, int sb);
 
  public:
-  int DecodeFrame(std::vector<uint8_t>, int off) override;
+  int DecodeFrame(std::vector<uint8_t> const &, int off) override;
 };
 }  // namespace jmp123::decoder
 
