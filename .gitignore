@@ -1,5 +1,6 @@
 cmake-*
 .idea
+.vs
 build
 
 *.mp3

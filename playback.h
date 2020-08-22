@@ -19,12 +19,12 @@
 namespace jmp123 {
 class Playback {
   constexpr static int BUFLEN = 8192;
-  std::vector<uint8_t> buf;
-  bool                 eof, paused;
+  std::vector<uint8_t> buf{};
+  bool                 eof{ false }, paused{ false };
   //  RandomRead instream;
   std::ifstream instream;
   //  ID3Tag id3tag;
-  int                              off, maxOff;
+  int                              off{}, maxOff{};
   decoder::Header                  header;
   std::unique_ptr<decoder::IAudio> audio;
   float                            currentVolume = 0.0f;

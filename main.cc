@@ -7,6 +7,7 @@
 using namespace jmp123;
 int main() {
   Playback p2(std::make_unique<output::Output>());
-  p2.Open("/home/jason/code/cc/cc_jmp123/test.mp3", "title");
-  p2.Start(false);
+  //p2.Open("/home/jason/code/cc/cc_jmp123/test.mp3", "title");
+  //p2.Open("C:\\Users\\mjaso\\source\\repos\\cc_jmp123\\test.mp3", "title");
+  p2.Start(true);
 }
