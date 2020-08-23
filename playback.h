@@ -20,7 +20,7 @@ namespace jmp123 {
 class Playback {
   constexpr static int BUFLEN = 8192;
   std::vector<uint8_t> buf{};
-  bool                 eof{ false }, paused{ false };
+  bool                 eof{false}, paused{false};
   //  RandomRead instream;
   std::ifstream instream;
   //  ID3Tag id3tag;
@@ -57,9 +57,9 @@ class Playback {
 
   bool Start(bool verbose) {
     using namespace decoder;
-    layer  = nullptr;
-    int            frames = 0;
-    paused                = false;
+    layer      = nullptr;
+    int frames = 0;
+    paused     = false;
 
     audio.get()->Start(true);
 
@@ -73,12 +73,14 @@ class Playback {
       case 3:
         layer = new LayerIII(std::move(header), std::move(audio));
         break;
+      default:
+        return false;
     }
 
     while (!eof) {
       // 1. 解码一帧并输出(播放)
       off = layer->DecodeFrame(buf, off);
-//      auto a = layer->DecodeFrame(buf, off);
+      //      auto a = layer->DecodeFrame(buf, off);
       if (verbose && (++frames & 0x7) == 0) header.PrintProgress();
 
       // 2. 定位到下一帧并解码帧头
@@ -107,7 +109,7 @@ class Playback {
       len = maxOff - off;
       //      System.arraycopy(buf, off, buf, 0, len);
       memmove(buf.data(), buf.data() + off, len);
-      instream.read(reinterpret_cast<char *>(buf.data() + len), off);
+      instream.read(reinterpret_cast<char*>(buf.data() + len), off);
       maxOff = len + instream.gcount();
       off    = 0;
       if (maxOff <= len || (chunk += BUFLEN) > 0x10000) eof = true;

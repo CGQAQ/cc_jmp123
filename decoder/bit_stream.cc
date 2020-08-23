@@ -26,7 +26,7 @@ jmp123::decoder::BitStream::BitStream(int len, int extr)
       byte_pos_(0),
       end_pos_(0),
       max_off_(len),
-      bit_reservoir_(std::vector<uint8_t>(len + extr)) {}
+      bit_reservoir_(len + extr) {}
 
 int jmp123::decoder::BitStream::Append(std::vector<uint8_t>const& b, int off, int len) {
   if (len + end_pos_ > max_off_) {

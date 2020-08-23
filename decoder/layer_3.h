@@ -52,10 +52,10 @@ class LayerIII : public LayerI_II_III {
     std::array<int, 3> table_select;
 
     std::array<int, 3> subblock_gain;
-    int  region0_count;
-    int  region1_count;
-    int  preflag;
-    int  scalefac_scale;
+    int                region0_count;
+    int                region1_count;
+    int                preflag;
+    int                scalefac_scale;
 
     int count1table_select;
 
@@ -65,32 +65,32 @@ class LayerIII : public LayerI_II_III {
     int part2_length;  // 增益因子(scale-factor)比特数
   };
 
-
-
  private:
   Header    header_;
-  int       channels_;
-  BitStream bs_si_;
+  int       channels_{header_.GetChannelCount()};
+  BitStream bs_si_{0, 0};
   // TODO: implement BitStreamMainData.java first
-  std::unique_ptr<BitStreamMainData>           main_data_stream_;
-  int                                          main_data_begin_;
-  std::vector<int>                             scfsi_;
+  std::unique_ptr<BitStreamMainData> main_data_stream_{
+      std::make_unique<BitStreamMainData>(4096, 512)};
+  int              main_data_begin_;
+  std::vector<int> scfsi_{std::vector<int>(channels_, 0)};
   std::vector<std::vector<ChannelInformation>> channel_info_;
   std::vector<int>                             sfb_index_long_;
   std::vector<int>                             sfb_index_short_;
-  bool                                         is_mpeg_1_;
+  bool                                         is_mpeg_1_{header_.GetVersion()
+                  == static_cast<int>(static_cast<int>(MPEGVersion::kMPEG1))};
+
  public:
-  int const granules_;
+  int const granules_{is_mpeg_1_ ? 2 : 1};
 
  private:
-  SynthesisConcurrent                          filter_ch_0_;
-  SynthesisConcurrent                          filter_ch_1;
+  SynthesisConcurrent filter_ch_0_{*this, 0};
+  SynthesisConcurrent filter_ch_1_{*this, 1};
 
-  std::thread t1, t2;
+  std::thread t1{&SynthesisConcurrent::operator(), &filter_ch_0_}, t2{};
 
  public:
   [[maybe_unused]] LayerIII(Header h, std::unique_ptr<IAudio> audio);
-  ~LayerIII();
 
   // 1.
   //>>>>SIDE INFORMATION (part1)=============================================
@@ -102,12 +102,15 @@ class LayerIII : public LayerI_II_III {
  private:
   // 2.
   //>>>>SCALE FACTORS========================================================
-  std::vector<std::array<int, 23>>     scalefacLong;   // [channels][23];
-  std::vector<std::array<int, 13 * 3>> scalefacShort;  // [channels][13*3];
-  std::array<int, 256> i_slen2;  // MPEG-2 slen for intensity stereo
-  std::array<int, 512> n_slen2;  // MPEG-2 slen for 'normal' mode
+  //    scalefacLong = new int[channels_][23];
+  std::vector<std::array<int, 23>> scalefacLong{channels_};  // [channels][23];
+  // scalefacShort = new int[channels_][3 * 13];
+  std::vector<std::array<int, 13 * 3>> scalefacShort{
+      channels_};                  // [channels][13*3];
+  std::array<int, 256> i_slen2{};  // MPEG-2 slen for intensity stereo
+  std::array<int, 512> n_slen2{};  // MPEG-2 slen for 'normal' mode
   // slen: 增益因子(scalefactor)比特数
-  std::array<std::array<std::array<uint8_t, 4>, 6>, 3> nr_of_sfb;  //[3][6][4]
+  std::array<std::array<std::array<uint8_t, 4>, 6>, 3> nr_of_sfb{};  //[3][6][4]
 
   void GetScaleFactors_2(int gr, int ch);
 
@@ -128,10 +131,12 @@ class LayerIII : public LayerI_II_III {
  private:
   // 4.
   //>>>>REQUANTIZATION & REORDER=============================================
-  std::vector<std::array<float, 32 * 18>>* xrch0{};     // [maxGr][32*18]
-  std::vector<std::array<float, 32 * 18>>* xrch1{};      // [maxGr][32*18]
-  std::array<float, 256 + 118 + 4>        floatPow2;   // [256 + 118 + 4]
-  std::array<float, 8207>                 floatPowIS;  // [8207]
+  std::vector<std::array<float, 32 * 18>>* xrch0{
+      filter_ch_0_.GetBuffer()};  // [maxGr][32*18]
+  std::vector<std::array<float, 32 * 18>>* xrch1{
+      filter_ch_1_.GetBuffer()};                // [maxGr][32*18]
+  std::array<float, 256 + 118 + 4> floatPow2;   // [256 + 118 + 4]
+  std::array<float, 8207>          floatPowIS;  // [8207]
   std::array<int, 22>
                       widthLong;  // [22] 长块的增益因子频带(用一个增益因子逆量化频率线的条数)
   std::array<int, 13> widthShort;  // [13] 短块的增益因子频带
@@ -182,20 +187,20 @@ class LayerIII : public LayerI_II_III {
  private:
   // 6.
   //>>>>ANTIALIAS============================================================
-  void antialias(int gr, int ch, std::array<float, 32 * 18> & xrch);
+  void antialias(int gr, int ch, std::array<float, 32 * 18>& xrch);
   //<<<<ANTIALIAS============================================================
 
  private:
   // 7.
   //>>>>HYBRID(synthesize via iMDCT)=========================================
-  void imdct12(std::array<float, 32 * 18> & xrch,
+  void imdct12(std::array<float, 32 * 18>& xrch,
                std::array<float, 32 * 18>& pre, int off);
 
-  void imdct36(std::array<float, 32 * 18> & xrch,
+  void imdct36(std::array<float, 32 * 18>& xrch,
                std::array<float, 32 * 18>& preBlck, int off, int block_type);
 
-  std::array<float, 32 * 18> preBlckCh0;  // [32*18],左声道FIFO队列
-  std::array<float, 32 * 18> preBlckCh1;  // [32*18],右声道FIFO
+  std::array<float, 32 * 18> preBlckCh0{};  // [32*18],左声道FIFO队列
+  std::array<float, 32 * 18> preBlckCh1{};  // [32*18],右声道FIFO
   void hybrid(int gr, int ch, std::array<float, 32 * 18>& xrch,
               std::array<float, 32 * 18>& preb);
   //<<<<HYBRID(synthesize via iMDCT)=========================================
@@ -224,13 +229,13 @@ class LayerIII : public LayerI_II_III {
   //<<<<OUTPUT PCM SAMPLES===================================================
   std::condition_variable notifier_;
   std::mutex              notifier_mutex_;
-  std::atomic_int         semaphore_;
+  std::atomic_int         semaphore_{channels_};
 
   /**
    * 解码1帧Layer Ⅲ
    */
 
-  int DecodeFrame(std::vector<uint8_t> const &b, int off) override;
+  int DecodeFrame(std::vector<uint8_t> const& b, int off) override;
 
   /**
    * 关闭帧的解码。如果用多线程并发解码，这些并发的解码线程将被终止。

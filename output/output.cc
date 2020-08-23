@@ -9,13 +9,14 @@
 
 namespace jmp123::output {
 
-bool Output::Open(jmp123::decoder::Header const &h, std::unique_ptr<std::string> ptr) {
+bool Output::Open(jmp123::decoder::Header const &h,
+                  std::unique_ptr<std::string>   ptr) {
   RtAudio::StreamParameters parameters;
-  parameters.deviceId     = dac_.getDefaultOutputDevice();
-  parameters.nChannels    = h.GetChannelCount();
-  parameters.firstChannel = 0;
-  unsigned int sampleRate = h.GetSamplingRate();
-  unsigned int bufferFrames = 1152;  // 256 sample frames
+  parameters.deviceId                 = dac_.getDefaultOutputDevice();
+  parameters.nChannels                = h.GetChannelCount();
+  parameters.firstChannel             = 0;
+  unsigned int           sampleRate   = h.GetSamplingRate();
+  unsigned int           bufferFrames = 1152;  // 256 sample frames
   double                 data[2];
   RtAudio::StreamOptions options;
   options.flags = RTAUDIO_NONINTERLEAVED;
@@ -58,12 +59,14 @@ void Output::refreshMessage(std::string msg) {}
 int  Output::Callback(void *outputBuffer, void *inputBuffer,
                      unsigned int nBufferFrames, double streamTime,
                      RtAudioStreamStatus status, void *userData) {
-  std::lock_guard lock{buffer_mutex};
-  if (!start_) return 0;
+  {
+    std::lock_guard lock{buffer_mutex};
+    if (!start_) return 0;
 
-  auto buffer = reinterpret_cast<std::vector<float> *>(userData);
+    auto buffer = reinterpret_cast<std::vector<float> *>(userData);
 
-  memcpy(outputBuffer, buffer->data(), buffer->size());
+    memcpy(outputBuffer, buffer->data(), buffer->size());
+  }
 
   buffer_condition.notify_one();
 }

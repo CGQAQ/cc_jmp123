@@ -29,11 +29,12 @@ namespace jmp123::decoder {
 class LayerI_II_III {
  private:
   AudioBuffer audio_buffer_;
+
  public:
   Synthesis filter_;
 
  public:
-  LayerI_II_III(const Header &h, std::unique_ptr<IAudio> audio);
+  LayerI_II_III(Header const &h, std::unique_ptr<IAudio> audio);
   ~LayerI_II_III() = default;
 
   /**
@@ -54,7 +55,7 @@ class LayerI_II_III {
    */
   void OutputAudio();
 
-   /**
+  /**
    * 音频输出缓冲区的全部内容刷向音频输出对象并将缓冲区偏移量复位。
    *
    * @see AudioBuffer#flush()

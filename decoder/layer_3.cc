@@ -31,23 +31,7 @@
 namespace jmp123::decoder {
 
 [[maybe_unused]] LayerIII::LayerIII(Header h, std::unique_ptr<IAudio> audio)
-    : LayerI_II_III(h, std::move(audio)),
-      header_(std::move(h)),
-      channels_(h.GetChannelCount()),
-      bs_si_(BitStream(0, 0)),
-      is_mpeg_1_(header_.GetVersion()
-                 == static_cast<int>(static_cast<int>(MPEGVersion::kMPEG1))),
-      granules_(is_mpeg_1_ ? 2 : 1),
-      filter_ch_0_(SynthesisConcurrent(*this, 0)),
-      filter_ch_1((SynthesisConcurrent(*this, 1))) {
-  semaphore_        = channels_;
-  main_data_stream_ = std::make_unique<BitStreamMainData>(4096, 512);
-  scfsi_            = std::vector<int>(channels_, 0);
-  //    scalefacLong = new int[channels_][23];
-  scalefacLong = decltype(scalefacLong)(channels_);  // new int[channels_ * 23]
-  // scalefacShort = new int[channels_][3 * 13];
-  scalefacShort =
-      decltype(scalefacShort)(channels_);  // new int[channels_ * 3 * 13]
+    : LayerI_II_III(h, std::move(audio)), header_(std::move(h)) {
   hv.fill(0);
   channel_info_ = decltype(channel_info_)(
       granules_,
@@ -60,13 +44,8 @@ namespace jmp123::decoder {
   // TODO: Maybe we should change thread callback function from operator() to
   // normal function like `void Run();`
   // TODO: CONSIDER SAVE HANDLE AND JOIN IT WHEN DESTRUCT
-  t1    = std::thread{&SynthesisConcurrent::operator(), &filter_ch_0_};
-  xrch0 = filter_ch_0_.GetBuffer();
-  preBlckCh0.fill(0);
   if (channels_ == 2) {
-    t2    = std::thread{&SynthesisConcurrent::operator(), &filter_ch_1};
-    xrch1 = filter_ch_1.GetBuffer();
-    preBlckCh1.fill(0);
+    t2 = std::thread{&SynthesisConcurrent::operator(), &filter_ch_1_};
   }
 
   int i = 0;
@@ -1010,7 +989,7 @@ void LayerIII::imdct36(std::array<float, 32 * 18>& xrch,
   //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< End of 36-point IDCT
 
   // output
-  auto const &win = kIMDCTWin[block_type];
+  auto const& win = kIMDCTWin[block_type];
 
   io[i + 0]  = pre[i + 0] + out9 * win[0];
   io[i + 1]  = pre[i + 1] + out10 * win[1];
@@ -1150,22 +1129,20 @@ int LayerIII::DecodeFrame(std::vector<uint8_t> const& b, int off) {
 
   // 异步多相合成滤波
   xrch0 = filter_ch_0_.StartSynthesis();
-  if (channels_ == 2) xrch1 = filter_ch_1.StartSynthesis();
+  if (channels_ == 2) xrch1 = filter_ch_1_.StartSynthesis();
   return off;
 }
 void LayerIII::Close() {
-  std::lock_guard lock{notifier_mutex_};
   semaphore_ = channels_;
   notifier_.notify_one();
 
   LayerI_II_III::Close();
 
   filter_ch_0_.Shutdown();
-  if (channels_ == 2) filter_ch_1.Shutdown();
+  if (channels_ == 2) filter_ch_1_.Shutdown();
 }
 
 void LayerIII::SubmitSynthesis() {
-  std::lock_guard lock{notifier_mutex_};
   if (++semaphore_ == channels_) notifier_.notify_one();
 }
 
