@@ -7,17 +7,26 @@
 
 #include <vector>
 
-#include "RtAudio.h"
+#include "portaudiocpp/PortAudioCpp.hxx"
 #include "decoder/audio_interface.h"
 
 namespace jmp123::output {
 class Output : public jmp123::decoder::IAudio {
-  RtAudio dac_;
+  PaStream* pa_stream_{};
 
   std::vector<float> buffer_;
 
  public:
-  Output() : dac_() {}
+  Output() {
+    Pa_Initialize();
+  }
+  ~Output() override {
+    if (pa_stream_ != nullptr){
+      Pa_CloseStream(pa_stream_);
+      pa_stream_ = nullptr;
+    }
+    Pa_Terminate();
+  }
 
   bool Open(decoder::Header const &h, std::unique_ptr<std::string> ptr) override;
   std::vector<float> const& GetBuffer();
@@ -28,9 +37,9 @@ class Output : public jmp123::decoder::IAudio {
   void refreshMessage(std::string msg) override;
 };
 
-static int AudioCallback(void *outputBuffer, void *inputBuffer,
-                    unsigned int nBufferFrames, double streamTime,
-                    RtAudioStreamStatus status, void *userData);
+//static int AudioCallback(void *outputBuffer, void *inputBuffer,
+//                    unsigned int nBufferFrames, double streamTime,
+//                    RtAudioStreamStatus status, void *userData);
 }  // namespace jmp123::output
 
 #endif  // JMP123_OUTPUT_H

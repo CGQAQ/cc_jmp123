@@ -46,8 +46,7 @@ add_subdirectory(third_party/fmt)
 target_include_directories(jmp123 PUBLIC third_party/fmt/include)
 target_link_libraries(jmp123 fmt)
 
-# set(RTAUDIO_BUILD_STATIC_LIBS)
- set(RTAUDIO_API_JACK OFF CACHE BOOL "" FORCE)
-add_subdirectory(third_party/rtaudio)
-target_include_directories(jmp123 PUBLIC third_party/rtaudio)
-target_link_libraries(jmp123 rtaudio)
+# portaudio library
+add_subdirectory(third_party/port_audio)
+target_include_directories(jmp123 PUBLIC third_party/port_audio/include)
+target_link_libraries(jmp123 portaudio)
