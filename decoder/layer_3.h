@@ -70,8 +70,7 @@ class LayerIII : public LayerI_II_III {
   int       channels_{header_.GetChannelCount()};
   BitStream bs_si_{0, 0};
   // TODO: implement BitStreamMainData.java first
-  std::unique_ptr<BitStreamMainData> main_data_stream_{
-      std::make_unique<BitStreamMainData>(4096, 512)};
+  std::unique_ptr<BitStreamMainData> main_data_stream_;
   int              main_data_begin_;
   std::vector<int> scfsi_{std::vector<int>(channels_, 0)};
   std::vector<std::vector<ChannelInformation>> channel_info_;
@@ -103,10 +102,11 @@ class LayerIII : public LayerI_II_III {
   // 2.
   //>>>>SCALE FACTORS========================================================
   //    scalefacLong = new int[channels_][23];
-  std::vector<std::array<int, 23>> scalefacLong{channels_};  // [channels][23];
+  std::vector<std::array<int, 23>> scalefacLong{
+      std::vector<std::array<int, 23>>(channels_)};  // [channels][23];
   // scalefacShort = new int[channels_][3 * 13];
   std::vector<std::array<int, 13 * 3>> scalefacShort{
-      channels_};                  // [channels][13*3];
+      std::vector<std::array<int, 13 * 3>>(channels_)};  // [channels][13*3];
   std::array<int, 256> i_slen2{};  // MPEG-2 slen for intensity stereo
   std::array<int, 512> n_slen2{};  // MPEG-2 slen for 'normal' mode
   // slen: 增益因子(scalefactor)比特数

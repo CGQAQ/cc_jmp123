@@ -4,6 +4,7 @@
 
 #include "output.h"
 
+#include <atomic>
 #include <condition_variable>
 #include <mutex>
 
@@ -23,15 +24,21 @@ bool Output::Open(jmp123::decoder::Header const &h,
 
   try {
     dac_.openStream(&parameters, nullptr, RTAUDIO_FLOAT32, sampleRate,
-                    &bufferFrames, &Output::Callback, &buffer_, &options,
+                    &bufferFrames, &AudioCallback, this, &options,
                     nullptr);
   } catch (RtAudioError &e) {
     e.printMessage();
     return false;
   }
 
+  auto a = dac_.getCurrentApi();
+  auto b = dac_.getDeviceCount();
+
   return true;
 }
+
+std::vector<float> const &Output::GetBuffer() { return buffer_; }
+
 
 static std::mutex              buffer_mutex;
 static std::condition_variable buffer_condition;
@@ -56,16 +63,17 @@ void Output::Start(bool b) {
 void Output::Drain() {}
 void Output::close() { dac_.closeStream(); }
 void Output::refreshMessage(std::string msg) {}
-int  Output::Callback(void *outputBuffer, void *inputBuffer,
+
+static int AudioCallback(void *outputBuffer, void *inputBuffer,
                      unsigned int nBufferFrames, double streamTime,
                      RtAudioStreamStatus status, void *userData) {
   {
     std::lock_guard lock{buffer_mutex};
     if (!start_) return 0;
 
-    auto buffer = reinterpret_cast<std::vector<float> *>(userData);
+    auto& output = *reinterpret_cast<Output *>(userData);
 
-    memcpy(outputBuffer, buffer->data(), buffer->size());
+    memcpy(outputBuffer, output.GetBuffer().data(), output.GetBuffer().size());
   }
 
   buffer_condition.notify_one();

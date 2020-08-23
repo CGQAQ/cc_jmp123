@@ -40,6 +40,8 @@ class IAudio {
    */
   virtual bool Open(Header const& h, std::unique_ptr<std::string>) = 0;
 
+  virtual std::vector<float> const& GetBuffer() = 0;
+
   /**
    * 将音频数据写入混频器。所请求的源数据是从PCM缓冲区 b
    * 中读取的（从数组中首字节开始），并且将被写入数据行的缓冲区。

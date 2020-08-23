@@ -31,7 +31,9 @@
 namespace jmp123::decoder {
 
 [[maybe_unused]] LayerIII::LayerIII(Header h, std::unique_ptr<IAudio> audio)
-    : LayerI_II_III(h, std::move(audio)), header_(std::move(h)) {
+    : LayerI_II_III(h, std::move(audio)),
+      header_(std::move(h)),
+      main_data_stream_{std::make_unique<BitStreamMainData>(4096, 512)} {
   hv.fill(0);
   channel_info_ = decltype(channel_info_)(
       granules_,
@@ -1054,83 +1056,86 @@ void LayerIII::hybrid(int gr, int ch, std::array<float, 32 * 18>& xrch,
   }
 }
 int LayerIII::DecodeFrame(std::vector<uint8_t> const& b, int off) {
-  /*
-   * part1 : side information
-   */
-  int i = GetSideInfo(b, off);
-  if (i < 0) return off + header_.GetFrameSize() - 4;  // 跳过这一帧
-  off = i;
+  {
+    /*
+     * part1 : side information
+     */
+    int i = GetSideInfo(b, off);
+    if (i < 0) return off + header_.GetFrameSize() - 4;  // 跳过这一帧
+    off = i;
 
-  /*
-   * part2_3: scale factors + huffman bits
-   * length: ((part2_3_bits + 7) >> 3) bytes
-   */
-  int maindataSize = header_.GetMainDataSize();
-  int bufSize      = main_data_stream_->GetSize();
-  if (bufSize < main_data_begin_) {
-    // 若出错，不解码当前这一帧， 将主数据(main_data)填入位流缓冲区后返回，
-    // 在解码下一帧时全部或部分利用填入的这些主数据。
+    /*
+     * part2_3: scale factors + huffman bits
+     * length: ((part2_3_bits + 7) >> 3) bytes
+     */
+    int maindataSize = header_.GetMainDataSize();
+    int bufSize      = main_data_stream_->GetSize();
+    if (bufSize < main_data_begin_) {
+      // 若出错，不解码当前这一帧， 将主数据(main_data)填入位流缓冲区后返回，
+      // 在解码下一帧时全部或部分利用填入的这些主数据。
+      main_data_stream_->Append(b, off, maindataSize);
+      return off + maindataSize;
+    }
+
+    // 丢弃上一帧的填充位
+    int discard = bufSize - main_data_stream_->GetBytePos() - main_data_begin_;
+    main_data_stream_->SkipBytes(discard);
+
+    // 主数据添加到位流缓冲区
     main_data_stream_->Append(b, off, maindataSize);
-    return off + maindataSize;
-  }
+    off += maindataSize;
+    // main_data_stream_->mark();//----debug
 
-  // 丢弃上一帧的填充位
-  int discard = bufSize - main_data_stream_->GetBytePos() - main_data_begin_;
-  main_data_stream_->SkipBytes(discard);
-
-  // 主数据添加到位流缓冲区
-  main_data_stream_->Append(b, off, maindataSize);
-  off += maindataSize;
-  // main_data_stream_->mark();//----debug
-
-  for (int gr = 0; gr < granules_; gr++) {
-    if (is_mpeg_1_)
-      GetScaleFactors_1(gr, 0);
-    else
-      GetScaleFactors_2(gr, 0);
-    huffBits(gr, 0);
-    Requantizer(gr, 0, (*xrch0)[gr]);
-
-    if (channels_ == 2) {
+    for (int gr = 0; gr < granules_; gr++) {
       if (is_mpeg_1_)
-        GetScaleFactors_1(gr, 1);
+        GetScaleFactors_1(gr, 0);
       else
-        GetScaleFactors_2(gr, 1);
-      huffBits(gr, 1);
-      Requantizer(gr, 1, (*xrch1)[gr]);
+        GetScaleFactors_2(gr, 0);
+      huffBits(gr, 0);
+      Requantizer(gr, 0, (*xrch0)[gr]);
 
-      if (header_.IsMS()) ms_stereo(gr);
-      if (header_.IsIntensityStereo()) intensity_stereo(gr);
+      if (channels_ == 2) {
+        if (is_mpeg_1_)
+          GetScaleFactors_1(gr, 1);
+        else
+          GetScaleFactors_2(gr, 1);
+        huffBits(gr, 1);
+        Requantizer(gr, 1, (*xrch1)[gr]);
+
+        if (header_.IsMS()) ms_stereo(gr);
+        if (header_.IsIntensityStereo()) intensity_stereo(gr);
+      }
+
+      antialias(gr, 0, (*xrch0)[gr]);
+      hybrid(gr, 0, (*xrch0)[gr], preBlckCh0);
+
+      if (channels_ == 2) {
+        antialias(gr, 1, (*xrch1)[gr]);
+        hybrid(gr, 1, (*xrch1)[gr], preBlckCh1);
+      }
     }
+    // int part2_3_bytes = main_data_stream_->getMark();//----debug
+    // 可以在这调用main_data_stream_->skipBits(part2_3_bits & 7)丢弃填充位，
+    // 更好的方法是放在解码下一帧主数据之前处理，如果位流错误，可以顺便纠正。
 
-    antialias(gr, 0, (*xrch0)[gr]);
-    hybrid(gr, 0, (*xrch0)[gr], preBlckCh0);
-
-    if (channels_ == 2) {
-      antialias(gr, 1, (*xrch1)[gr]);
-      hybrid(gr, 1, (*xrch1)[gr], preBlckCh1);
+    try {
+      std::unique_lock lock{notifier_mutex_};
+      while (semaphore_
+             < channels_)  // 等待上一帧channels个声道完成多相合成滤波
+        notifier_.wait(lock);
+      semaphore_ = 0;  // 信号量置0
+                       //实现播放
+    } catch (std::exception& e) {
+      Close();
+      return off;
     }
-  }
-  // int part2_3_bytes = main_data_stream_->getMark();//----debug
-  // 可以在这调用main_data_stream_->skipBits(part2_3_bits & 7)丢弃填充位，
-  // 更好的方法是放在解码下一帧主数据之前处理，如果位流错误，可以顺便纠正。
+    OutputAudio();
 
-  try {
-    std::unique_lock lock{notifier_mutex_};
-    while (semaphore_ < channels_)  // 等待上一帧channels个声道完成多相合成滤波
-      notifier_.wait(lock);
-    semaphore_ = 0;  // 信号量置0
-                     //实现播放
-  } catch (std::exception& e) {
-    Close();
+    // 异步多相合成滤波
+    xrch0 = filter_ch_0_.StartSynthesis();
+    if (channels_ == 2) xrch1 = filter_ch_1_.StartSynthesis();
     return off;
   }
-  OutputAudio();
-
-  // 异步多相合成滤波
-  xrch0 = filter_ch_0_.StartSynthesis();
-  if (channels_ == 2) xrch1 = filter_ch_1_.StartSynthesis();
-  return off;
 }
 void LayerIII::Close() {
   semaphore_ = channels_;

@@ -25,8 +25,8 @@ namespace jmp123::decoder {
 SynthesisConcurrent::SynthesisConcurrent(LayerIII& owner, int ch)
     : owner_(owner), ch_(ch), pause_(true), alive_(true) {
   samples_.fill(0);
-  pre_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules_);
-  cur_xr_ = std::vector<std::array<float, 32 * 18>>(owner.granules_);
+  pre_xr_     = std::vector<std::array<float, 32 * 18>>(owner.granules_);
+  cur_xr_     = std::vector<std::array<float, 32 * 18>>(owner.granules_);
   pre_xr_ptr_ = &pre_xr_;
   cur_xr_ptr_ = &cur_xr_;
 }
@@ -36,8 +36,11 @@ std::vector<std::array<float, 32 * 18>>* SynthesisConcurrent::StartSynthesis() {
   //  pre_xr_ = cur_xr_;
   //  cur_xr_ = p;
   // 2. 通知run()干活
-  swap(pre_xr_ptr_, cur_xr_ptr_);
-  pause_ = false;
+  {
+    std::lock_guard lock{pause_mutex_};
+    swap(pre_xr_ptr_, cur_xr_ptr_);
+    pause_ = false;
+  }
   notifier_.notify_one();
 
   // 3. 返回"空闲的"缓冲区，该缓冲区内的数据已被run()方法使用完毕
@@ -54,11 +57,11 @@ void SynthesisConcurrent::Shutdown() {
 void SynthesisConcurrent::operator()() {
   int   gr = 0, sub = 0, ss = 0, i = 0;
   int   granules = owner_.granules_;
-  auto & filter   = owner_.filter_;
+  auto& filter   = owner_.filter_;
 
   while (alive_) {
     std::unique_lock<std::mutex> lock(pause_mutex_);
-    while (pause_) notifier_.wait(lock);
+    notifier_.wait(lock, [this]() { return !pause_; });
     pause_ = true;
 
     for (gr = 0; gr < granules; ++gr) {

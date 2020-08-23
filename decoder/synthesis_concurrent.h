@@ -42,10 +42,9 @@ class SynthesisConcurrent {
   std::vector<std::array<float, 32 * 18>>* pre_xr_ptr_{};
   std::vector<std::array<float, 32 * 18>>* cur_xr_ptr_{};
 
+  std::mutex pause_mutex_{};
   std::condition_variable notifier_{};
   std::atomic_bool        pause_{}, alive_{};
-
-  std::mutex pause_mutex_{};
   // c++ 20, but no compiler except gcc 10 support it now
   // so im gonna use std::thread instead
   //  std::jthread
