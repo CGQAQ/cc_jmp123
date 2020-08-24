@@ -25,7 +25,7 @@
 namespace jmp123::decoder {
 class AudioBuffer {
  public:
-  std::vector<uint8_t> pcm_buf_;
+  std::vector<int8_t> pcm_buf_;
   std::array<int, 2>         off_{};
 
  private:

@@ -54,7 +54,7 @@ class IAudio {
    *            写入的数据长度。
    * @return 向混频器器写入PCM数据的字节数。
    */
-  virtual int Write(std::vector<uint8_t> const& b) = 0;
+  virtual int Write(std::vector<int8_t> const& b) = 0;
 
   /**
    * 根据b指定的值向混频器器写入数据或暂停向混频器器写入数据。

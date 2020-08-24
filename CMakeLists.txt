@@ -48,5 +48,5 @@ target_link_libraries(jmp123 fmt)
 
 # portaudio library
 add_subdirectory(third_party/port_audio)
-target_include_directories(jmp123 PUBLIC third_party/port_audio/include)
+target_include_directories(jmp123 PUBLIC third_party/port_audio/include third_party/port_audio/bindings/cpp/include)
 target_link_libraries(jmp123 portaudio)

@@ -20,13 +20,9 @@ bool Output::Open(jmp123::decoder::Header const &h,
   parameters.sampleFormat = paInt16;
   parameters.suggestedLatency = Pa_GetDeviceInfo(parameters.device)->defaultHighOutputLatency;
 
-//  unsigned int           sampleRate   = h.GetSamplingRate();
-//  unsigned int           bufferFrames = 1152;  // 256 sample frames
-//  double                 data[2];
-//  RtAudio::StreamOptions options;
-//  options.flags = RTAUDIO_NONINTERLEAVED;
-
-  Pa_OpenStream(&pa_stream_, nullptr, &parameters, h.GetSamplingRate(), h.GetBitrate() * 1000 / h.GetSamplingRate() / 8, paClipOff, nullptr, nullptr);
+  Pa_OpenStream(&pa_stream_, nullptr, &parameters, h.GetSamplingRate(),
+                /*paFramesPerBufferUnspecified*//*h.GetSamplingRate() * parameters.suggestedLatency*/ 18432 / 2, paClipOff,
+                nullptr, nullptr);
 
   return true;
 }
@@ -38,9 +34,8 @@ static std::mutex              buffer_mutex;
 static std::condition_variable buffer_condition;
 static std::atomic_bool        start_;
 
-int Output::Write(std::vector<uint8_t> const &b) {
-
-  Pa_WriteStream(pa_stream_, b.data(), b.size());
+int Output::Write(std::vector<int8_t> const &b) {
+  Pa_WriteStream(pa_stream_, b.data(), b.size() / 2);
   return 0;
 }
 void Output::Start(bool b) {

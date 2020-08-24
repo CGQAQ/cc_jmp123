@@ -135,13 +135,13 @@ class LayerIII : public LayerI_II_III {
       filter_ch_0_.GetBuffer()};  // [maxGr][32*18]
   std::vector<std::array<float, 32 * 18>>* xrch1{
       filter_ch_1_.GetBuffer()};                // [maxGr][32*18]
-  std::array<float, 256 + 118 + 4> floatPow2;   // [256 + 118 + 4]
-  std::array<float, 8207>          floatPowIS;  // [8207]
+  std::array<float, 256 + 118 + 4> floatPow2{};   // [256 + 118 + 4]
+  std::array<float, 8207>          floatPowIS{};  // [8207]
   std::array<int, 22>
-                      widthLong;  // [22] 长块的增益因子频带(用一个增益因子逆量化频率线的条数)
-  std::array<int, 13> widthShort;  // [13] 短块的增益因子频带
-  int                 rzeroBandLong;
-  std::array<int, 3>  rzeroBandShort;  //= new int[3];
+                      widthLong{};  // [22] 长块的增益因子频带(用一个增益因子逆量化频率线的条数)
+  std::array<int, 13> widthShort{};  // [13] 短块的增益因子频带
+  int                 rzeroBandLong{};
+  std::array<int, 3>  rzeroBandShort{};  //= new int[3];
 
   /**
    * 逆量化并对短块(纯短块和混合块中的短块)重排序.在逆量化时赋值的变量:<br>
