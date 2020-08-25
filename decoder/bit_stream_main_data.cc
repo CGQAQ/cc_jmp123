@@ -90,7 +90,7 @@ int BitStreamMainData::DecodeHuff(const LayerIII::ChannelInformation& ci,
    * 2. 使位流缓冲区按字节对齐
    */
   int num  = (8 - bit_pos_) & 7;
-  int mask = 0;
+  uint32_t mask = 0;
   if (num > 0) {
     mask = GetBits_9(num);
     mask <<= 32 - num;

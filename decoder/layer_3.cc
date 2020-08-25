@@ -445,8 +445,9 @@ void LayerIII::GetScaleFactors_1(int gr, int ch) {
   }
 }
 void LayerIII::huffBits(int gr, int ch) {
-  ChannelInformation ci = channel_info_[gr][ch];
-  int                r1, r2;
+  // final ChannelInformation ci = channelInfo[gr][ch];
+  ChannelInformation& ci = channel_info_[gr][ch];
+  int                 r1, r2;
 
   if (ci.window_switching_flag != 0) {
     int ver = header_.GetVersion();
@@ -479,12 +480,13 @@ void LayerIII::huffBits(int gr, int ch) {
   rzeroIndex[ch] = main_data_stream_->DecodeHuff(ci, hv);  // 哈夫曼解码
 }
 void LayerIII::Requantizer(int gr, int ch, std::array<float, 32 * 18>& xrch) {
-  auto               l       = scalefacLong[ch];
-  ChannelInformation ci      = channel_info_[gr][ch];
-  bool               preflag = ci.preflag == 1;
-  int                shift   = 1 + ci.scalefac_scale;
-  int                maxi    = rzeroIndex[ch];
-  float              requVal;
+  auto                l       = scalefacLong[ch];
+  // final ChannelInformation ci = channelInfo[gr][ch];
+  ChannelInformation& ci      = channel_info_[gr][ch];
+  bool                preflag = ci.preflag == 1;
+  int                 shift   = 1 + ci.scalefac_scale;
+  int                 maxi    = rzeroIndex[ch];
+  float               requVal;
   int bi = 0, sfb = 0, width, pre, val, hvIdx = 0, xri = 0, scf = 0;
   int xriStart = 0;  // 用于计算短块重排序后的下标
   int pow2i    = 255 - ci.global_gain;
@@ -533,8 +535,10 @@ void LayerIII::Requantizer(int gr, int ch, std::array<float, 32 * 18>& xrch) {
     }
 
     // 短块(混合块中的短块和纯短块)
-    auto s       = scalefacShort[ch];
-    auto subgain = ci.subblock_gain;
+    // final int[] s = scalefacShort[ch];
+    // final int[] subgain = ci.subblock_gain;
+    auto& s       = scalefacShort[ch];
+    auto& subgain = ci.subblock_gain;
     subgain[0] <<= 3;
     subgain[1] <<= 3;
     subgain[2] <<= 3;
