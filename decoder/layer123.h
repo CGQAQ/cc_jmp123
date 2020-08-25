@@ -35,7 +35,7 @@ class LayerI_II_III {
 
  public:
   LayerI_II_III(Header const &h, std::unique_ptr<IAudio> audio);
-  ~LayerI_II_III() = default;
+  virtual ~LayerI_II_III() = default;
 
   /**
    * 从此字节输入流中给定偏移量处开始解码一帧。

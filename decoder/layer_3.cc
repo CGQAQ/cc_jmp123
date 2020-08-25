@@ -30,10 +30,10 @@
 
 namespace jmp123::decoder {
 
-[[maybe_unused]] LayerIII::LayerIII(Header h, std::unique_ptr<IAudio> audio)
+[[maybe_unused]] LayerIII::LayerIII(Header const& h, std::unique_ptr<IAudio> audio)
     : LayerI_II_III(h, std::move(audio)),
-      header_(std::move(h)),
-      main_data_stream_{std::make_unique<BitStreamMainData>(4096, 512)} {
+      header_(h),
+      main_data_stream_{new BitStreamMainData(4096, 512)} {
   hv.fill(0);
   channel_info_ = decltype(channel_info_)(
       granules_,
@@ -222,6 +222,12 @@ namespace jmp123::decoder {
           n_slen2[n + 400] = i | (j << 3) | (k << 6) | (1 << 12);
         }
   }
+}
+
+LayerIII::~LayerIII() {
+  delete main_data_stream_;
+  t1.join();
+  t2.join();
 }
 
 // 1.

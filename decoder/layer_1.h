@@ -30,16 +30,16 @@
 
 namespace jmp123::decoder {
 class LayerI : public LayerI_II_III {
-  Header                                 header_;
+  Header const&                          header_;
   std::unique_ptr<BitStream>             bs_;
   std::array<std::array<uint8_t, 32>, 2> allocation_{};
   std::array<std::array<uint8_t, 32>, 2> scale_factor_{};
   std::array<std::array<float, 32>, 2>   syin_{};
 
  public:
-  LayerI(Header h, std::unique_ptr<IAudio> audio)
+  LayerI(Header const& h, std::unique_ptr<IAudio> audio)
       : LayerI_II_III(h, std::move(audio)),
-        header_(std::move(h)),
+        header_(h),
         bs_(std::make_unique<BitStream>(4096, 512)) {}
 
  private:
@@ -51,7 +51,7 @@ class LayerI : public LayerI_II_III {
   float Requantization(int ch, int sb, int nb);
 
  public:
-  int DecodeFrame(std::vector<uint8_t> const &b, int off) override;
+  int DecodeFrame(std::vector<uint8_t> const& b, int off) override;
 };
 }  // namespace jmp123::decoder
 

@@ -19,9 +19,9 @@
 
 #include "layer_2.h"
 namespace jmp123::decoder{
-LayerII::LayerII(Header h, std::unique_ptr<IAudio> audio)
+LayerII::LayerII(Header const& h, std::unique_ptr<IAudio> audio)
     : LayerI_II_III(h, std::move(audio)),
-      header_(std::move(h)),
+      header_(h),
       channels_(h.GetChannelCount()),
       bs_(std::make_unique<BitStream>(4096, 512)) {
   // aidx, sblimit

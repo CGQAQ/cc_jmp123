@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 if (MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W4 /permissive-")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W3 /permissive-")
 else ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif ()
@@ -48,5 +48,5 @@ target_link_libraries(jmp123 fmt)
 
 # portaudio library
 add_subdirectory(third_party/port_audio)
-target_include_directories(jmp123 PUBLIC third_party/port_audio/include)
+target_include_directories(jmp123 PUBLIC third_party/port_audio/bindings/cpp/include)
 target_link_libraries(jmp123 portaudio)

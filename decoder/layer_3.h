@@ -66,13 +66,13 @@ class LayerIII : public LayerI_II_III {
   };
 
  private:
-  Header    header_;
-  int       channels_{header_.GetChannelCount()};
-  BitStream bs_si_{0, 0};
+  Header const& header_;
+  int           channels_{header_.GetChannelCount()};
+  BitStream     bs_si_{0, 0};
   // TODO: implement BitStreamMainData.java first
-  std::unique_ptr<BitStreamMainData> main_data_stream_;
-  int              main_data_begin_;
-  std::vector<int> scfsi_{std::vector<int>(channels_, 0)};
+  BitStreamMainData* main_data_stream_;
+  int                main_data_begin_;
+  std::vector<int>   scfsi_{std::vector<int>(channels_, 0)};
   std::vector<std::vector<ChannelInformation>> channel_info_;
   std::vector<int>                             sfb_index_long_;
   std::vector<int>                             sfb_index_short_;
@@ -89,8 +89,9 @@ class LayerIII : public LayerI_II_III {
   std::thread t1{&SynthesisConcurrent::operator(), &filter_ch_0_}, t2{};
 
  public:
-  [[maybe_unused]] LayerIII(Header h, std::unique_ptr<IAudio> audio);
+  [[maybe_unused]] LayerIII(Header const& h, std::unique_ptr<IAudio> audio);
 
+  ~LayerIII() override;
   // 1.
   //>>>>SIDE INFORMATION (part1)=============================================
   // private int part2_3_bits;//----debug
