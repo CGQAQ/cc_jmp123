@@ -227,6 +227,8 @@ namespace jmp123::decoder {
 
 LayerIII::~LayerIII() {
   delete main_data_stream_;
+  filter_ch_0_.Shutdown();
+  filter_ch_1_.Shutdown();
   t1.join();
   t2.join();
 }

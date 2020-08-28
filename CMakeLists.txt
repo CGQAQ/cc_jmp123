@@ -53,12 +53,5 @@ target_link_libraries(libjmp123 fmt)
 set(PA_USE_ALSA ON)
 set(PA_USE_JACK OFF)
 add_subdirectory(third_party/port_audio)
-if (ALSA_FOUND)
-    message(STATUS "founded alsa" ALSA_FOUND)
-endif ()
 target_include_directories(libjmp123 PUBLIC third_party/port_audio/bindings/cpp/include)
 target_link_libraries(libjmp123 portaudio)
-
-
-# add_subdirectory(tests)
-# -DCMAKE_TOOLCHAIN_FILE=C:/bin/vcpkg/scripts/buildsystems/vcpkg.cmake

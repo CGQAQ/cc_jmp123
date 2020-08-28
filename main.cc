@@ -11,7 +11,7 @@ int main() {
   p2.Open(R"(C:\Users\mjaso\Downloads\Jason Derulo - Take You Dancing.mp3)",
            "title");
 //  p2.Open("/home/jason/Desktop/test.mp3", "t");
-  p2.Start(false);
+  p2.Start(true);
 }
 
 //int main()

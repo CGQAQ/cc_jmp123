@@ -101,7 +101,7 @@ bool Header::Available(int h, int curmask) {
          && ((h >> 12) & 15) != 0 && ((h >> 10) & 3) != 3;
 }
 int  Header::Offset() const { return idx_; }
-bool Header::SyncFrame(std::vector<uint8_t> const & b, int off, int end_pos) {
+bool Header::SyncFrame(std::vector<uint8_t> const &b, int off, int end_pos) {
   int h, mask = 0;
   int skip_bytes = 0;
   idx_           = off;
@@ -197,7 +197,7 @@ int Header::GetElapse() const {
 std::string Header::GetVBRInfo() const {
   return vbr_info_.gcount() == 0 ? "" : vbr_info_.str();
 }
-void Header::ParseVBR(uint8_t const* b, int off, int len) {
+void Header::ParseVBR(uint8_t const *b, int off, int len) {
   int const max_off = off + frame_size_ - 4;
   if (max_off >= len) {
     return;
@@ -240,7 +240,7 @@ void Header::ParseVBR(uint8_t const* b, int off, int len) {
     return;
   }
   // Encoder Version: 9-byte
-  auto encoder = std::string(reinterpret_cast<char const*>(b + off), 9);
+  auto encoder = std::string(reinterpret_cast<char const *>(b + off), 9);
   //    String encoder = new String(b, off, 9);
   off += 9;
   vbr_info_ << "\n      encoder: ";
@@ -412,7 +412,7 @@ int Header::VBRIHeader(uint8_t const *b, int off, int len) {
 }
 int Header::XingInfoHeader(uint8_t const *b, int off, int len) {
   vbr_info_ << "   vbr header: ";
-  vbr_info_ << std::string(reinterpret_cast<char const*>(b + off), 4);
+  vbr_info_ << std::string(reinterpret_cast<char const *>(b + off), 4);
 
   track_length_ -= frame_size_;
   int xing_flags = Byte_2_Int(b, off + 4);
@@ -492,16 +492,20 @@ void Header::PrintProgress() {
   float s = t - 60 * m;
   int i = (static_cast<int>(100.0f * frame_counter_ / track_frames_ + 0.5) << 2)
           / 10;
-  if (progress_.gcount() == 0)
+  if (progress_.str().empty())
     progress_ << ">----------------------------------------";
   if (i == progress_index_) {
-    progress_.rdbuf()[i - 1].sputc('=');
-    progress_.rdbuf()[i].sputc('>');
+    // progress_.rdbuf()[i].sputc('>');
+    progress_.seekp(i - 1, std::ios_base::beg);
+    progress_.write("=>", 2);
     progress_index_++;
   }
 
-  std::cout << fmt::format("\r#{:-5d} [{:-41s}] {:02d}:{:05.2f} ",
-                           frame_counter_, progress_.str(), m, s);
+  auto a = fmt::format("\r#{:<5d} [{:<41s}] {:02d}:{:05.2f} ",
+                       frame_counter_, progress_.str(), m, s);
+
+  (std::cout << fmt::format("\r#{:<5d} [{:<41s}] {:02d}:{:05.2f} ",
+                           frame_counter_, progress_.str(), m, s)).flush();
 }
 
 }  // namespace jmp123::decoder
