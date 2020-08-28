@@ -1,0 +1,10 @@
+//
+// Created by mjaso on 8/28/2020.
+//
+
+#ifndef JMP123_CONFIG_H
+#define JMP123_CONFIG_H
+
+#define PROJECT_PATH "@PROJECT_PATH@"
+
+#endif  // JMP123_CONFIG_H

@@ -24,15 +24,14 @@ AudioBuffer::AudioBuffer(std::unique_ptr<IAudio> audio, int size)
   pcm_buf_ = std::vector<uint8_t>(size);
   off_     = std::array<int, 2>{0, 2};
 }
-}  // namespace jmp123::decoder
-void jmp123::decoder::AudioBuffer::Output() {
+void AudioBuffer::Output() {
   if (off_[0] >= size_) {
     if (audio_ != nullptr) audio_->Write(pcm_buf_);
     off_[0] = 0;
     off_[1] = 2;
   }
 }
-void jmp123::decoder::AudioBuffer::Flush() {
+void AudioBuffer::Flush() {
   if (audio_ != nullptr) {
     audio_->Write(pcm_buf_);
     audio_->Drain();
@@ -40,3 +39,4 @@ void jmp123::decoder::AudioBuffer::Flush() {
   off_[0] = 0;
   off_[1] = 2;
 }
+}  // namespace jmp123::decoder

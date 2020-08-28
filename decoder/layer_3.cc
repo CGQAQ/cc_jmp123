@@ -1164,5 +1164,4 @@ void LayerIII::Close() {
 void LayerIII::SubmitSynthesis() {
   if (++semaphore_ == channels_) notifier_.notify_one();
 }
-
 }  // namespace jmp123::decoder

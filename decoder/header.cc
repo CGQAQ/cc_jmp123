@@ -22,7 +22,6 @@
 #include "tables.h"
 
 namespace jmp123::decoder {
-
 [[maybe_unused]] void Header::Initialize(long track_length, int duration) {
   track_length_   = track_length;
   duration_       = static_cast<float>(duration);
@@ -501,11 +500,11 @@ void Header::PrintProgress() {
     progress_index_++;
   }
 
-  auto a = fmt::format("\r#{:<5d} [{:<41s}] {:02d}:{:05.2f} ",
-                       frame_counter_, progress_.str(), m, s);
+  auto a = fmt::format("\r#{:<5d} [{:<41s}] {:02d}:{:05.2f} ", frame_counter_,
+                       progress_.str(), m, s);
 
   (std::cout << fmt::format("\r#{:<5d} [{:<41s}] {:02d}:{:05.2f} ",
-                           frame_counter_, progress_.str(), m, s)).flush();
+                            frame_counter_, progress_.str(), m, s))
+      .flush();
 }
-
 }  // namespace jmp123::decoder

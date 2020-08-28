@@ -55,3 +55,8 @@ set(PA_USE_JACK OFF)
 add_subdirectory(third_party/port_audio)
 target_include_directories(libjmp123 PUBLIC third_party/port_audio/bindings/cpp/include)
 target_link_libraries(libjmp123 portaudio)
+
+# config.h
+set(PROJECT_PATH ${CMAKE_CURRENT_LIST_DIR})
+configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+target_include_directories(jmp123 PUBLIC ${CMAKE_CURRENT_BINARY_DIR})

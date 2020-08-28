@@ -61,7 +61,7 @@ BitStreamMainData::BitStreamMainData(int len, int extra)
   lin_[31] = 13;
 }
 int BitStreamMainData::DecodeHuff(const LayerIII::ChannelInformation& ci,
-                                  std::array<int, 32 * 18 + 4>& hv) {
+                                  std::array<int, 32 * 18 + 4>&       hv) {
   unsigned int tmp = 0, lin_bits = 0, max_idx = 0, idx = 0;
   auto&        b = bit_reservoir_;
 
@@ -72,10 +72,10 @@ int BitStreamMainData::DecodeHuff(const LayerIII::ChannelInformation& ci,
    * part3len: 哈夫曼编码的主数据(main_data)的比特数
    */
   int part3len = ci.part2_3_length - ci.part2_length;
-  int x        = ci.region1Start;     // region1
-  int y        = ci.region2Start;     // region2
+  int x        = ci.region1Start;      // region1
+  int y        = ci.region2Start;      // region2
   int i        = ci.big_values << 1u;  // bv
-  if (i > 574) i = 574;               // 错误的big_value置为0 ?
+  if (i > 574) i = 574;                // 错误的big_value置为0 ?
   if (x < i) {
     region_[0] = x;
     if (y < i) {
@@ -89,7 +89,7 @@ int BitStreamMainData::DecodeHuff(const LayerIII::ChannelInformation& ci,
   /*
    * 2. 使位流缓冲区按字节对齐
    */
-  int num  = (8 - bit_pos_) & 7;
+  int      num  = (8 - bit_pos_) & 7;
   uint32_t mask = 0;
   if (num > 0) {
     mask = GetBits_9(num);
@@ -101,10 +101,10 @@ int BitStreamMainData::DecodeHuff(const LayerIII::ChannelInformation& ci,
    * 3. 解码大值区
    */
   for (i = 0; i < 3; i++) {
-    max_idx   = region_[i];
-    tmp       = ci.table_select[i];
-    auto const &htab = htbv_[tmp];
-    lin_bits  = lin_[tmp];
+    max_idx          = region_[i];
+    tmp              = ci.table_select[i];
+    auto const& htab = htbv_[tmp];
+    lin_bits         = lin_[tmp];
     while (idx < max_idx) {
       if (part3len + num <= 0) {  //检测位流是否有错误
         num -= part3len + num;
@@ -142,7 +142,10 @@ int BitStreamMainData::DecodeHuff(const LayerIII::ChannelInformation& ci,
         }
         // --------------------------------------------------
         // hv[idx++] = (mask < 0) ? -x : x;
-        hv[idx++] = (mask > INT_MAX) ? -x : x;  // this!!!!!!! is !!!! the !!!!!!!!problem!!!!!!!!!
+        hv[idx++] =
+            (mask > INT_MAX)
+                ? -x
+                : x;  // this!!!!!!! is !!!! the !!!!!!!!problem!!!!!!!!!
         // ----------------------------------------------------
         num--;
         mask <<= 1;
@@ -242,14 +245,11 @@ int BitStreamMainData::DecodeHuff(const LayerIII::ChannelInformation& ci,
   part3len += num;
   if (part3len > 0) {  // 这还不一定是附属位，码流有错误也有可能出现这种情况
     while (part3len > 9) {
-      
       GetBits_9(9);  // 不再是字节对齐的
       part3len -= 9;
     }
     GetBits_9(part3len);
   }
-
   return nozeroIndex;
 }
-
 }  // namespace jmp123::decoder

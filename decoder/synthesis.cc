@@ -29,7 +29,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
   auto&        fifo    = fifo_buf_[ch];
   auto&        pcm_buf = audio_buffer_.pcm_buf_;
   float        sum     = 0;
-  unsigned int pcm_i   = 0; // java >>>
+  unsigned int pcm_i   = 0;  // java >>>
   int          off     = audio_buffer_.off_[ch];
 
   // 1. shift

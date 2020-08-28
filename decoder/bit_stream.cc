@@ -21,6 +21,7 @@
 
 #include <cstring>
 
+namespace jmp123::decoder {
 jmp123::decoder::BitStream::BitStream(int len, int extr)
     : bit_pos_(0),
       byte_pos_(0),
@@ -28,35 +29,28 @@ jmp123::decoder::BitStream::BitStream(int len, int extr)
       max_off_(len),
       bit_reservoir_((int64_t)len + (int64_t)extr) {}
 
-int jmp123::decoder::BitStream::Append(std::vector<uint8_t> const& b, int off,
-                                       int len) {
+int BitStream::Append(std::vector<uint8_t> const& b, int off, int len) {
   if (len + end_pos_ > max_off_) {
-    // std::copy(bit_reservoir_ + byte_pos_, bit_reservoir_)
-    // std::memcpy(bit_reservoir_.get(), &bit_reservoir_[byte_pos_],
-    //                end_pos_ - byte_pos_);
-    //  std::copy(bit_reservoir_.begin() + byte_pos_, bit_reservoir_.end(),
-    //  bit_reservoir_.begin());
-    memcpy(bit_reservoir_.data(), bit_reservoir_.data()+byte_pos_,  end_pos_ - byte_pos_);
+    memcpy(bit_reservoir_.data(), bit_reservoir_.data() + byte_pos_,
+           end_pos_ - byte_pos_);
 
     end_pos_ -= byte_pos_;
     bit_pos_ = byte_pos_ = 0;
   }
   if (len + end_pos_ > max_off_) len = max_off_ - end_pos_;
-//  memcpy(&bit_reservoir_[end_pos_], &b[off], len);
   memcpy(bit_reservoir_.data() + end_pos_, b.data() + off, len);
   end_pos_ += len;
   return len;
 }
 
-void jmp123::decoder::BitStream::Feed(std::vector<uint8_t> const& other,
-                                      int                         off) {
+void BitStream::Feed(std::vector<uint8_t> const& other, int off) {
   bit_reservoir_ = other;
   byte_pos_      = off;
   bit_pos_       = 0;
 }
 
-uint32_t jmp123::decoder::BitStream::GetBits_17(uint32_t n) {
-  uint32_t iret = bit_reservoir_[byte_pos_];
+uint32_t BitStream::GetBits_17(uint32_t n) {
+  uint32_t iret    = bit_reservoir_[byte_pos_];
   uint32_t bit_pos = bit_pos_;
 
   iret <<= 8u;
@@ -72,7 +66,7 @@ uint32_t jmp123::decoder::BitStream::GetBits_17(uint32_t n) {
   return iret;
 }
 
-uint32_t jmp123::decoder::BitStream::GetBits_9(int n) {
+uint32_t BitStream::GetBits_9(int n) {
   uint32_t iret = bit_reservoir_[byte_pos_];
   iret <<= 8;
   iret |= bit_reservoir_[byte_pos_ + 1] & 0xff;
@@ -85,12 +79,12 @@ uint32_t jmp123::decoder::BitStream::GetBits_9(int n) {
   return iret;
 }
 
-void jmp123::decoder::BitStream::SkipBytes(int n) {
+void BitStream::SkipBytes(int n) {
   byte_pos_ += n;
   bit_pos_ = 0;
 }
 
-uint32_t jmp123::decoder::BitStream::Get_1_Bit() {
+uint32_t BitStream::Get_1_Bit() {
   uint32_t bit = bit_reservoir_[byte_pos_] << bit_pos_;
   bit >>= 7;
   bit &= 1;
@@ -100,8 +94,9 @@ uint32_t jmp123::decoder::BitStream::Get_1_Bit() {
   return bit;
 }
 
-void jmp123::decoder::BitStream::SkipBits(int n) {
+void BitStream::SkipBits(int n) {
   bit_pos_ += n;
   byte_pos_ += bit_pos_ >> 3;
   bit_pos_ &= 0x7;
 }
+}  // namespace jmp123::decoder
