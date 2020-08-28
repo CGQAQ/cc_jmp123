@@ -65,16 +65,6 @@ class Synthesis {
   void SynthesisSubBand(std::array<float, 32> const& samples, int ch);
 
   /**
-   * 一个子带的矩阵运算。
-   * @param src 输入的32个样本值。
-   * @param dest 暂存输出值的长度为1024个元素的FIFO队列。
-   * @param off
-   * FIFO队列的偏移量。一个子带一次矩阵运算输出64个值连续存储到FIFO队列，存储的起始位置由off指定。
-   */
-  void Dct32To64(std::array<float, 32> const&  src, std::array<float, 1024>& dest, int off);
-
-
-  /**
    * 子带多相合成滤波构造器。
    *
    * @param ab
@@ -83,8 +73,18 @@ class Synthesis {
    * @param channels
    *            声道数，用于计算输出PCM时的步长值。
    */
-  Synthesis(AudioBuffer &ab, int channels);
+  Synthesis(AudioBuffer& ab, int channels);
 };
+
+/**
+ * 一个子带的矩阵运算。
+ * @param src 输入的32个样本值。
+ * @param dest 暂存输出值的长度为1024个元素的FIFO队列。
+ * @param off
+ * FIFO队列的偏移量。一个子带一次矩阵运算输出64个值连续存储到FIFO队列，存储的起始位置由off指定。
+ */
+void Dct32To64(std::array<float, 32> const& src, std::array<float, 1024>& dest,
+               int off);
 }  // namespace jmp123::decoder
 
 #endif  // JMP123_SYNTHESIS_H

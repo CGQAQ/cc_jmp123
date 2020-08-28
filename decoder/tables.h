@@ -45,11 +45,11 @@ constexpr std::array<std::array<std::array<int, 15>, 3>, 2> kBitrateTable{
          // Layer III
          {0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160}})};
 
-constexpr std::array<std::array<int, 4>, 4> kSamplingRateTable{
-    std::to_array({11025, 12000, 8000, 0}),
-    std::to_array({0, 0, 0, 0}),
-    std::to_array({22050, 24000, 16000, 0}),
-    std::to_array({44100, 48000, 32000, 0}),
+constexpr std::array<std::array<uint32_t , 4>, 4> kSamplingRateTable{
+    std::to_array({11025u, 12000u, 8000u, 0u}),
+    std::to_array({0u, 0u, 0u, 0u}),
+    std::to_array({22050u, 24000u, 16000u, 0u}),
+    std::to_array({44100u, 48000u, 32000u, 0u}),
 };
 
 // Layer1也用到factor[]

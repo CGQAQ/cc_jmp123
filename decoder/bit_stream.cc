@@ -28,39 +28,47 @@ jmp123::decoder::BitStream::BitStream(int len, int extr)
       max_off_(len),
       bit_reservoir_((int64_t)len + (int64_t)extr) {}
 
-int jmp123::decoder::BitStream::Append(std::vector<uint8_t>const& b, int off, int len) {
+int jmp123::decoder::BitStream::Append(std::vector<uint8_t> const& b, int off,
+                                       int len) {
   if (len + end_pos_ > max_off_) {
     // std::copy(bit_reservoir_ + byte_pos_, bit_reservoir_)
-    //    std::memcpy(bit_reservoir_.get(), &bit_reservoir_[byte_pos_],
+    // std::memcpy(bit_reservoir_.get(), &bit_reservoir_[byte_pos_],
     //                end_pos_ - byte_pos_);
-    std::copy(bit_reservoir_.begin() + byte_pos_, bit_reservoir_.end(), bit_reservoir_.begin());
+    //  std::copy(bit_reservoir_.begin() + byte_pos_, bit_reservoir_.end(),
+    //  bit_reservoir_.begin());
+    memcpy(bit_reservoir_.data(), bit_reservoir_.data()+byte_pos_,  end_pos_ - byte_pos_);
+
     end_pos_ -= byte_pos_;
     bit_pos_ = byte_pos_ = 0;
   }
   if (len + end_pos_ > max_off_) len = max_off_ - end_pos_;
-  std::memcpy(&bit_reservoir_[end_pos_], &b[off], len);
+//  memcpy(&bit_reservoir_[end_pos_], &b[off], len);
+  memcpy(bit_reservoir_.data() + end_pos_, b.data() + off, len);
   end_pos_ += len;
   return len;
 }
 
-void jmp123::decoder::BitStream::Feed(std::vector<uint8_t> const &other, int off) {
+void jmp123::decoder::BitStream::Feed(std::vector<uint8_t> const& other,
+                                      int                         off) {
   bit_reservoir_ = other;
   byte_pos_      = off;
   bit_pos_       = 0;
 }
 
-uint32_t jmp123::decoder::BitStream::GetBits_17(int n) {
+uint32_t jmp123::decoder::BitStream::GetBits_17(uint32_t n) {
   uint32_t iret = bit_reservoir_[byte_pos_];
-  iret <<= 8;
-  iret |= bit_reservoir_[byte_pos_ + 1] & 0xff;
-  iret <<= 8;
-  iret |= bit_reservoir_[byte_pos_ + 2] & 0xff;
-  iret <<= bit_pos_;
-  iret &= 0xffffff;
-  iret >>= 24 - n;
+  uint32_t bit_pos = bit_pos_;
+
+  iret <<= 8u;
+  iret |= bit_reservoir_[byte_pos_ + 1] & 0xffu;
+  iret <<= 8u;
+  iret |= bit_reservoir_[byte_pos_ + 2] & 0xffu;
+  iret <<= bit_pos;
+  iret &= 0xffffffu;
+  iret >>= 24u - n;
   bit_pos_ += n;
   byte_pos_ += bit_pos_ >> 3;
-  bit_pos_ &= 0x7;
+  bit_pos_ &= 0x7u;
   return iret;
 }
 

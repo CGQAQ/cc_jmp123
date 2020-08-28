@@ -39,19 +39,19 @@ enum class MPEGVersion : int {
 class Header {
  private:
   MPEGVersion ver_id_;
-  int         layer_;
-  int         protection_bit_;
-  int         bitrate_index_;
-  int         sampling_frequency_;
-  int         padding_bit_;
-  int         mode_;
-  int         mode_extension_;
+  uint32_t        layer_;
+  uint32_t        protection_bit_;
+  uint32_t        bitrate_index_;
+  uint32_t        sampling_frequency_;
+  uint32_t        padding_bit_;
+  uint32_t        mode_;
+  uint32_t        mode_extension_;
 
-  int  frame_size_;
-  int  main_data_size_;
-  int  side_info_size_;
-  int  lsf_;
-  int  header_mask_;
+  uint32_t frame_size_;
+  uint32_t main_data_size_;
+  uint32_t side_info_size_;
+  uint32_t lsf_;
+  uint32_t header_mask_;
   bool is_intensity_;
   bool sync_;
 
@@ -73,7 +73,7 @@ class Header {
  public:
   void Initialize(long track_length, int duration);
 
-  void ParseHeader(int h);
+  void ParseHeader(uint32_t h);
 
   [[nodiscard]] int Byte_2_Int(uint8_t const *b, int off);
 

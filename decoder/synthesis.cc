@@ -23,13 +23,14 @@ Synthesis::Synthesis(AudioBuffer& ab, int channels)
     : audio_buffer_(ab),
       kStep_(channels == 2 ? 4 : 2),
       fifo_buf_(channels),
-      fifo_index_(channels){}
+      fifo_index_(channels) {}
 int  Synthesis::GetMaxPCM() const { return max_pcm_; }
 void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
   auto&        fifo    = fifo_buf_[ch];
   auto&        pcm_buf = audio_buffer_.pcm_buf_;
   float        sum     = 0;
-  int pcm_i = 0, off = audio_buffer_.off_[ch];
+  unsigned int pcm_i   = 0; // java >>>
+  int          off     = audio_buffer_.off_[ch];
 
   // 1. shift
   fifo_index_[ch] = (fifo_index_[ch] - 64) & 0x3ff;
@@ -40,7 +41,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
     case 0:
       for (int i = 0; i < 32; i++, off += kStep_) {
         auto const& win = kDewin[i];
-        sum      = win[0] * fifo[i];
+        sum             = win[0] * fifo[i];
         sum += win[1] * fifo[i + 96];
         sum += win[2] * fifo[i + 128];
         sum += win[3] * fifo[i + 224];
@@ -59,7 +60,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         pcm_i =
             sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);  // clip
         pcm_buf[off]     = pcm_i;
-        pcm_buf[off + 1] = pcm_i >> 8;
+        pcm_buf[off + 1] = pcm_i >> 8u;
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -67,7 +68,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
       // u_vector={64,160,192,288,320,416,448,544,576,672,704,800,832,928,960,32}
       for (int i = 0; i < 32; i++, off += kStep_) {
         auto const& win = kDewin[i];
-        sum      = win[0] * fifo[i + 64];
+        sum             = win[0] * fifo[i + 64];
         sum += win[1] * fifo[i + 160];
         sum += win[2] * fifo[i + 192];
         sum += win[3] * fifo[i + 288];
@@ -85,7 +86,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[15] * fifo[i + 32];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
         pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = pcm_i >> 8;
+        pcm_buf[off + 1] = pcm_i >> 8u;
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -93,7 +94,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
       // u_vector={128,224,256,352,384,480,512,608,640,736,768,864,896,992,0,96}
       for (int i = 0; i < 32; i++, off += kStep_) {
         auto const& win = kDewin[i];
-        sum      = win[0] * fifo[i + 128];
+        sum             = win[0] * fifo[i + 128];
         sum += win[1] * fifo[i + 224];
         sum += win[2] * fifo[i + 256];
         sum += win[3] * fifo[i + 352];
@@ -111,7 +112,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[15] * fifo[i + 96];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
         pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = pcm_i >> 8;
+        pcm_buf[off + 1] = pcm_i >> 8u;
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -119,7 +120,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
       // u_vector={192,288,320,416,448,544,576,672,704,800,832,928,960,32,64,160}
       for (int i = 0; i < 32; i++, off += kStep_) {
         auto const& win = kDewin[i];
-        sum      = win[0] * fifo[i + 192];
+        sum             = win[0] * fifo[i + 192];
         sum += win[1] * fifo[i + 288];
         sum += win[2] * fifo[i + 320];
         sum += win[3] * fifo[i + 416];
@@ -137,7 +138,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[15] * fifo[i + 160];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
         pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = pcm_i >> 8;
+        pcm_buf[off + 1] = pcm_i >> 8u;
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -145,7 +146,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
       // u_vector={256,352,384,480,512,608,640,736,768,864,896,992,0,96,128,224}
       for (int i = 0; i < 32; i++, off += kStep_) {
         auto const& win = kDewin[i];
-        sum      = win[0] * fifo[i + 256];
+        sum             = win[0] * fifo[i + 256];
         sum += win[1] * fifo[i + 352];
         sum += win[2] * fifo[i + 384];
         sum += win[3] * fifo[i + 480];
@@ -163,7 +164,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[15] * fifo[i + 224];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
         pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = pcm_i >> 8;
+        pcm_buf[off + 1] = pcm_i >> 8u;
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -171,7 +172,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
       // u_vector={320,416,448,544,576,672,704,800,832,928,960,32,64,160,192,288}
       for (int i = 0; i < 32; i++, off += kStep_) {
         auto const& win = kDewin[i];
-        sum      = win[0] * fifo[i + 320];
+        sum             = win[0] * fifo[i + 320];
         sum += win[1] * fifo[i + 416];
         sum += win[2] * fifo[i + 448];
         sum += win[3] * fifo[i + 544];
@@ -189,7 +190,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[15] * fifo[i + 288];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
         pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = pcm_i >> 8;
+        pcm_buf[off + 1] = pcm_i >> 8u;
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -197,7 +198,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
       // u_vector={384,480,512,608,640,736,768,864,896,992,0,96,128,224,256,352}
       for (int i = 0; i < 32; i++, off += kStep_) {
         auto const& win = kDewin[i];
-        sum      = win[0] * fifo[i + 384];
+        sum             = win[0] * fifo[i + 384];
         sum += win[1] * fifo[i + 480];
         sum += win[2] * fifo[i + 512];
         sum += win[3] * fifo[i + 608];
@@ -213,10 +214,10 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[13] * fifo[i + 224];
         sum += win[14] * fifo[i + 256];
         sum += win[15] * fifo[i + 352];
-        pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
+        pcm_i = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
 
-        pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = pcm_i >> 8;
+        pcm_buf[off]     = pcm_i;
+        pcm_buf[off + 1] = pcm_i >> 8u;
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -242,7 +243,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[15] * fifo[i + 416];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
         pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = pcm_i >> 8;
+        pcm_buf[off + 1] = pcm_i >> 8u;
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -268,7 +269,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[15] * fifo[i + 480];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
         pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = pcm_i >> 8;
+        pcm_buf[off + 1] = pcm_i >> 8u;
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -294,7 +295,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[15] * fifo[i + 544];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
         pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = (pcm_i >> 8);
+        pcm_buf[off + 1] = (pcm_i >> 8u);
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -302,7 +303,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
       // u_vector={640,736,768,864,896,992,0,96,128,224,256,352,384,480,512,608}
       for (int i = 0; i < 32; i++, off += kStep_) {
         auto const& win = kDewin[i];
-        sum      = win[0] * fifo[i + 640];
+        sum             = win[0] * fifo[i + 640];
         sum += win[1] * fifo[i + 736];
         sum += win[2] * fifo[i + 768];
         sum += win[3] * fifo[i + 864];
@@ -320,7 +321,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[15] * fifo[i + 608];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
         pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = (pcm_i >> 8);
+        pcm_buf[off + 1] = (pcm_i >> 8u);
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -328,7 +329,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
       // u_vector={704,800,832,928,960,32,64,160,192,288,320,416,448,544,576,672}
       for (int i = 0; i < 32; i++, off += kStep_) {
         auto const& win = kDewin[i];
-        sum      = win[0] * fifo[i + 704];
+        sum             = win[0] * fifo[i + 704];
         sum += win[1] * fifo[i + 800];
         sum += win[2] * fifo[i + 832];
         sum += win[3] * fifo[i + 928];
@@ -346,7 +347,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[15] * fifo[i + 672];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
         pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = (pcm_i >> 8);
+        pcm_buf[off + 1] = (pcm_i >> 8u);
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -354,7 +355,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
       // u_vector={768,864,896,992,0,96,128,224,256,352,384,480,512,608,640,736}
       for (int i = 0; i < 32; i++, off += kStep_) {
         auto const& win = kDewin[i];
-        sum      = win[0] * fifo[i + 768];
+        sum             = win[0] * fifo[i + 768];
         sum += win[1] * fifo[i + 864];
         sum += win[2] * fifo[i + 896];
         sum += win[3] * fifo[i + 992];
@@ -372,7 +373,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[15] * fifo[i + 736];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
         pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = (pcm_i >> 8);
+        pcm_buf[off + 1] = (pcm_i >> 8u);
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -380,7 +381,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
       // u_vector={832,928,960,32,64,160,192,288,320,416,448,544,576,672,704,800}
       for (int i = 0; i < 32; i++, off += kStep_) {
         auto const& win = kDewin[i];
-        sum      = win[0] * fifo[i + 832];
+        sum             = win[0] * fifo[i + 832];
         sum += win[1] * fifo[i + 928];
         sum += win[2] * fifo[i + 960];
         sum += win[3] * fifo[i + 32];
@@ -398,7 +399,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[15] * fifo[i + 800];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
         pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = (pcm_i >> 8);
+        pcm_buf[off + 1] = (pcm_i >> 8u);
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -406,7 +407,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
       // u_vector={896,992,0,96,128,224,256,352,384,480,512,608,640,736,768,864}
       for (int i = 0; i < 32; i++, off += kStep_) {
         auto const& win = kDewin[i];
-        sum      = win[0] * fifo[i + 896];
+        sum             = win[0] * fifo[i + 896];
         sum += win[1] * fifo[i + 992];
         sum += win[2] * fifo[i];
         sum += win[3] * fifo[i + 96];
@@ -424,7 +425,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[15] * fifo[i + 864];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
         pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = pcm_i >> 8;
+        pcm_buf[off + 1] = pcm_i >> 8u;
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
@@ -432,7 +433,7 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
       // u_vector={960,32,64,160,192,288,320,416,448,544,576,672,704,800,832,928}
       for (int i = 0; i < 32; i++, off += kStep_) {
         auto const& win = kDewin[i];
-        sum      = win[0] * fifo[i + 960];
+        sum             = win[0] * fifo[i + 960];
         sum += win[1] * fifo[i + 32];
         sum += win[2] * fifo[i + 64];
         sum += win[3] * fifo[i + 160];
@@ -450,17 +451,17 @@ void Synthesis::SynthesisSubBand(std::array<float, 32> const& samples, int ch) {
         sum += win[15] * fifo[i + 928];
         pcm_i        = sum > 32767 ? 32767 : (sum < -32768 ? -32768 : (int)sum);
         pcm_buf[off] = pcm_i;
-        pcm_buf[off + 1] = pcm_i >> 8;
+        pcm_buf[off + 1] = pcm_i >> 8u;
         if (pcm_i > max_pcm_) max_pcm_ = pcm_i;
       }
       break;
   }
   audio_buffer_.off_[ch] = off;
 }
-void Synthesis::Dct32To64(std::array<float, 32> const&   src,
-                          std::array<float, 1024>& dest, int off) {
-  auto&  in  = src;
-  auto&  out = dest;
+void Dct32To64(std::array<float, 32> const& src, std::array<float, 1024>& dest,
+               int off) {
+  auto& in  = src;
+  auto& out = dest;
   int   i   = off;
   float in0, in1, in2, in3, in4, in5, in6, in7, in8, in9, in10, in11, in12,
       in13, in14, in15;

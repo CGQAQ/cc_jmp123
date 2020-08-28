@@ -33,18 +33,18 @@ namespace jmp123::decoder {
   side_info_size_ = toc_number_ = toc_per_ = toc_factor_ = frame_counter_ = 0;
   vbr_toc_ = nullptr;
 }
-void Header::ParseHeader(int h) {
-  ver_id_             = static_cast<MPEGVersion>((h >> 19) & 3);
-  layer_              = 4 - (h >> 17) & 3;
-  protection_bit_     = (h >> 16) & 1;
-  bitrate_index_      = (h >> 12) & 0xF;
-  sampling_frequency_ = (h >> 10) & 3;
-  padding_bit_        = (h >> 9) & 1;
-  mode_               = (h >> 6) & 3;
-  mode_extension_     = (h >> 4) & 3;
+void Header::ParseHeader(uint32_t h) {
+  ver_id_             = static_cast<MPEGVersion>((h >> 19u) & 3u);
+  layer_              = 4 - (h >> 17u) & 3u;
+  protection_bit_     = (h >> 16u) & 1u;
+  bitrate_index_      = (h >> 12u) & 0xFu;
+  sampling_frequency_ = (h >> 10u) & 3u;
+  padding_bit_        = (h >> 9u) & 1u;
+  mode_               = (h >> 6u) & 3u;
+  mode_extension_     = (h >> 4u) & 3u;
 
-  is_MS_        = mode_ == 1 && (mode_extension_ & 2) != 0;
-  is_intensity_ = mode_ == 1 && (mode_extension_ & 1) != 0;
+  is_MS_        = mode_ == 1 && (mode_extension_ & 2u) != 0;
+  is_intensity_ = mode_ == 1 && (mode_extension_ & 1u) != 0;
   lsf_          = (ver_id_ == MPEGVersion::kMPEG1) ? 0 : 1;
 
   switch (layer_) {
@@ -52,7 +52,7 @@ void Header::ParseHeader(int h) {
       frame_size_ = kBitrateTable[lsf_][0][bitrate_index_] * 12000;
       frame_size_ /=
           kSamplingRateTable[static_cast<int>(ver_id_)][sampling_frequency_];
-      frame_size_ = ((frame_size_ + padding_bit_) << 2);
+      frame_size_ = ((frame_size_ + padding_bit_) << 2u);
       break;
     case 2:
       frame_size_ = kBitrateTable[lsf_][1][bitrate_index_] * 144000;

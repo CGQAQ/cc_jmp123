@@ -30,7 +30,8 @@
 
 namespace jmp123::decoder {
 
-[[maybe_unused]] LayerIII::LayerIII(Header const& h, std::unique_ptr<IAudio> audio)
+[[maybe_unused]] LayerIII::LayerIII(Header const&           h,
+                                    std::unique_ptr<IAudio> audio)
     : LayerI_II_III(h, std::move(audio)),
       header_(h),
       main_data_stream_{new BitStreamMainData(4096, 512)} {
@@ -189,7 +190,7 @@ namespace jmp123::decoder {
                                 std::to_array<uint8_t, 4>({6, 18, 9, 0})})};
 
     // ISO/IEC 13818-3 subclause 2.4.3.2 slenx, x=1..4
-    int j, k, l, n;
+    unsigned int j, k, l, n;
     for (i = 0; i < 5; i++)
       for (j = 0; j < 6; j++)
         for (k = 0; k < 6; k++) {
@@ -334,11 +335,11 @@ int LayerIII::GetSideInfo(std::vector<uint8_t> const& b, int off) {
   return off + header_.GetSideInfoSize();
 }
 void LayerIII::GetScaleFactors_2(int gr, int ch) {
-  uint8_t i, band, slen, num, n = 0, scf = 0;
-  bool    i_stereo = header_.IsIntensityStereo();
-  auto&   ci       = channel_info_[gr][ch];
-  auto&   l        = scalefacLong[ch];
-  auto&   s        = scalefacShort[ch];
+  int   i, band, slen, num, n = 0, scf = 0;
+  bool  i_stereo = header_.IsIntensityStereo();
+  auto& ci       = channel_info_[gr][ch];
+  auto& l        = scalefacLong[ch];
+  auto& s        = scalefacShort[ch];
 
   rzeroBandLong = 0;
   if ((ch > 0) && i_stereo)
@@ -480,7 +481,8 @@ void LayerIII::huffBits(int gr, int ch) {
   rzeroIndex[ch] = main_data_stream_->DecodeHuff(ci, hv);  // 哈夫曼解码
 }
 void LayerIII::Requantizer(int gr, int ch, std::array<float, 32 * 18>& xrch) {
-  auto                l       = scalefacLong[ch];
+  // final int[] l = scalefacLong[ch];
+  auto const& l = scalefacLong[ch];
   // final ChannelInformation ci = channelInfo[gr][ch];
   ChannelInformation& ci      = channel_info_[gr][ch];
   bool                preflag = ci.preflag == 1;

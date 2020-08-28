@@ -44,7 +44,7 @@ class BitStream {
 
   [[nodiscard]] uint32_t Get_1_Bit();
 
-  [[nodiscard]] uint32_t GetBits_17(int n);
+  [[nodiscard]] uint32_t GetBits_17(uint32_t n);
 
   [[nodiscard]] uint32_t GetBits_9(int n);
 

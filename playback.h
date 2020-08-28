@@ -109,7 +109,11 @@ class Playback {
       len = maxOff - off;
       //      System.arraycopy(buf, off, buf, 0, len);
       memmove(buf.data(), buf.data() + off, len);
-      instream.read(reinterpret_cast<char*>(buf.data() + len), off);
+//      instream.read(reinterpret_cast<char*>(buf.data() + len), off);
+      char* b = static_cast<char*>(alloca(off));
+      instream.read(b, off);
+      memcpy(buf.data() + len, b, off);
+
       maxOff = len + instream.gcount();
       off    = 0;
       if (maxOff <= len || (chunk += BUFLEN) > 0x10000) eof = true;

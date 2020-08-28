@@ -8,6 +8,9 @@
 #include <condition_variable>
 #include <mutex>
 
+#include <fstream>
+
+
 namespace jmp123::output {
 
 bool Output::Open(jmp123::decoder::Header const &h,
@@ -25,6 +28,7 @@ bool Output::Open(jmp123::decoder::Header const &h,
 //  double                 data[2];
 //  RtAudio::StreamOptions options;
 //  options.flags = RTAUDIO_NONINTERLEAVED;
+  auto a = h.GetPcmSize();
 
   Pa_OpenStream(&pa_stream_, nullptr, &parameters, h.GetSamplingRate(), parameters.suggestedLatency * h.GetSamplingRate(), paNoFlag, nullptr, nullptr);
 
@@ -38,8 +42,13 @@ std::vector<float> const &Output::GetBuffer() { return buffer_; }
 //static std::condition_variable buffer_condition;
 //static std::atomic_bool        start_;
 
+//std::ofstream file{"o.out", std::ios_base::binary};
+
 int Output::Write(std::vector<uint8_t> const &b) {
-  Pa_WriteStream(pa_stream_, b.data(), b.size() / 2);
+//  char* buf = (char*)alloca(b.size());
+//  memcpy(buf, b.data(), b.size());
+//  file.write(buf, b.size());
+  Pa_WriteStream(pa_stream_, b.data(), b.size() / 4); // 左右声道各两个字节(int)
   return 0;
 }
 void Output::Start(bool b) {

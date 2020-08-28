@@ -74,7 +74,7 @@ int BitStreamMainData::DecodeHuff(const LayerIII::ChannelInformation& ci,
   int part3len = ci.part2_3_length - ci.part2_length;
   int x        = ci.region1Start;     // region1
   int y        = ci.region2Start;     // region2
-  int i        = ci.big_values << 1;  // bv
+  int i        = ci.big_values << 1u;  // bv
   if (i > 574) i = 574;               // 错误的big_value置为0 ?
   if (x < i) {
     region_[0] = x;
@@ -140,7 +140,10 @@ int BitStreamMainData::DecodeHuff(const LayerIII::ChannelInformation& ci,
           num -= lin_bits;
           mask <<= lin_bits;
         }
-        hv[idx++] = (mask < 0) ? -x : x;
+        // --------------------------------------------------
+        // hv[idx++] = (mask < 0) ? -x : x;
+        hv[idx++] = (mask > INT_MAX) ? -x : x;  // this!!!!!!! is !!!! the !!!!!!!!problem!!!!!!!!!
+        // ----------------------------------------------------
         num--;
         mask <<= 1;
       } else
@@ -157,7 +160,9 @@ int BitStreamMainData::DecodeHuff(const LayerIII::ChannelInformation& ci,
           num -= lin_bits;
           mask <<= lin_bits;
         }
-        hv[idx++] = (mask < 0) ? -y : y;
+        // --------------------------------------------------
+        hv[idx++] = (mask > INT_MAX) ? -y : y;
+        // ----------------------------------------------------
         num--;
         mask <<= 1;
       } else
@@ -237,6 +242,7 @@ int BitStreamMainData::DecodeHuff(const LayerIII::ChannelInformation& ci,
   part3len += num;
   if (part3len > 0) {  // 这还不一定是附属位，码流有错误也有可能出现这种情况
     while (part3len > 9) {
+      
       GetBits_9(9);  // 不再是字节对齐的
       part3len -= 9;
     }
