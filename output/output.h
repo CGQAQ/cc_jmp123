@@ -7,10 +7,11 @@
 
 #include <vector>
 
-#include "portaudiocpp/PortAudioCpp.hxx"
 #include "decoder/audio_interface.h"
+#include "portaudio.h"
 
 namespace jmp123::output {
+
 class Output : public jmp123::decoder::IAudio {
   PaStream* pa_stream_{};
 

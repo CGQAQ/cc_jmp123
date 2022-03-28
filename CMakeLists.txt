@@ -32,7 +32,6 @@ set(COMMON_SOURCE
         decoder/synthesis_concurrent.cc decoder/synthesis_concurrent.h
         decoder/bit_stream_main_data.cc decoder/bit_stream_main_data.h)
 
-
 add_executable(jmp123 main.cc ${COMMON_SOURCE})
 target_include_directories(jmp123 PUBLIC .)
 target_link_libraries(jmp123 libjmp123)
@@ -50,11 +49,11 @@ target_include_directories(libjmp123 PUBLIC third_party/fmt/include)
 target_link_libraries(libjmp123 fmt)
 
 # portaudio library
-set(PA_USE_ALSA ON)
-set(PA_USE_JACK OFF)
+#set(PA_USE_ALSA ON)
+#set(PA_USE_JACK OFF)
 add_subdirectory(third_party/port_audio)
-target_include_directories(libjmp123 PUBLIC third_party/port_audio/bindings/cpp/include)
-target_link_libraries(libjmp123 portaudio)
+target_include_directories(libjmp123 PUBLIC third_party/port_audio/include)
+target_link_libraries(libjmp123 PortAudio)
 
 # config.h
 set(PROJECT_PATH ${CMAKE_CURRENT_LIST_DIR})
